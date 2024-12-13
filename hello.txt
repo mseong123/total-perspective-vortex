@@ -1,35 +1,891 @@
-experiment 5
-experiment 9
-experiment 13
-{np.str_('T2'): array([[0.5       , 0.5       , 0.5       , 0.5       , 0.5       ,
-        0.5       , 0.5       , 0.5       , 0.5       , 0.5       ],
-       [0.5       , 0.5       , 0.5       , 0.5       , 0.5       ,
-        0.5       , 0.5       , 0.5       , 0.5       , 0.5       ],
-       [0.5       , 0.5       , 0.5       , 0.5       , 0.5       ,
-        0.5       , 0.5       , 0.5       , 0.5       , 0.5       ],
-       [0.66666667, 0.66666667, 0.66666667, 0.66666667, 0.66666667,
-        0.66666667, 0.66666667, 0.66666667, 0.66666667, 0.66666667],
-       [0.66666667, 0.66666667, 0.66666667, 0.66666667, 0.66666667,
-        0.66666667, 0.66666667, 0.66666667, 0.66666667, 0.66666667],
-       [0.66666667, 0.66666667, 0.66666667, 0.66666667, 0.66666667,
-        0.66666667, 0.66666667, 0.66666667, 0.66666667, 0.66666667],
-       [0.66666667, 0.66666667, 0.66666667, 0.66666667, 0.66666667,
-        0.66666667, 0.66666667, 0.66666667, 0.66666667, 0.66666667],
-       [0.66666667, 0.66666667, 0.66666667, 0.66666667, 0.66666667,
-        0.66666667, 0.66666667, 0.66666667, 0.66666667, 0.66666667],
-       [0.33333333, 0.33333333, 0.33333333, 0.33333333, 0.33333333,
-        0.33333333, 0.33333333, 0.33333333, 0.33333333, 0.33333333],
-       [0.33333333, 0.33333333, 0.33333333, 0.33333333, 0.33333333,
-        0.33333333, 0.33333333, 0.33333333, 0.33333333, 0.33333333]])}
-0.5
+[[-3.10828709e-03 -2.19327158e-03 -3.41705135e-04 ... -4.43360632e-05
+   5.90742396e-04  1.97397705e-18]
+ [-5.52789127e-03 -6.42850014e-05  3.89060601e-04 ... -4.11317344e-04
+  -1.18763913e-04  1.97397705e-18]
+ [-1.40784488e-02  5.95192142e-04 -2.93287734e-03 ...  8.65004271e-04
+  -5.79910121e-04  1.97397705e-18]
+ ...
+ [-5.02046935e-04  9.79566897e-04  5.74156524e-05 ...  5.83229236e-04
+  -1.40612375e-04  1.97397705e-18]
+ [ 2.74559804e-03  3.40775084e-03 -1.95661592e-03 ... -3.74598935e-04
+  -1.87785046e-04  1.97397705e-18]
+ [-1.75602112e-03 -1.79041014e-03  3.61676425e-04 ... -4.10979215e-04
+   3.41912213e-04  1.97397705e-18]]
+(45,)
+Iteration 1, loss = 0.70809333
+Iteration 2, loss = 0.70721395
+Iteration 3, loss = 0.70635041
+Iteration 4, loss = 0.70550758
+Iteration 5, loss = 0.70468778
+Iteration 6, loss = 0.70389133
+Iteration 7, loss = 0.70311877
+Iteration 8, loss = 0.70237727
+Iteration 9, loss = 0.70166905
+Iteration 10, loss = 0.70098483
+Iteration 11, loss = 0.70032310
+Iteration 12, loss = 0.69968363
+Iteration 13, loss = 0.69906627
+Iteration 14, loss = 0.69847115
+Iteration 15, loss = 0.69789814
+Iteration 16, loss = 0.69734718
+Iteration 17, loss = 0.69681826
+Iteration 18, loss = 0.69631129
+Iteration 19, loss = 0.69582616
+Iteration 20, loss = 0.69536277
+Iteration 21, loss = 0.69492098
+Iteration 22, loss = 0.69450102
+Iteration 23, loss = 0.69416544
+Iteration 24, loss = 0.69383997
+Iteration 25, loss = 0.69353050
+Iteration 26, loss = 0.69323610
+Iteration 27, loss = 0.69295533
+Iteration 28, loss = 0.69268852
+Iteration 29, loss = 0.69243555
+Iteration 30, loss = 0.69219673
+Iteration 31, loss = 0.69197224
+Iteration 32, loss = 0.69176545
+Iteration 33, loss = 0.69157209
+Iteration 34, loss = 0.69139099
+Iteration 35, loss = 0.69122220
+Iteration 36, loss = 0.69106743
+Iteration 37, loss = 0.69092486
+Iteration 38, loss = 0.69079440
+Iteration 39, loss = 0.69067560
+Iteration 40, loss = 0.69056764
+Iteration 41, loss = 0.69047018
+Iteration 42, loss = 0.69038257
+Iteration 43, loss = 0.69030424
+Iteration 44, loss = 0.69023476
+Iteration 45, loss = 0.69017361
+Iteration 46, loss = 0.69012005
+Iteration 47, loss = 0.69007341
+Iteration 48, loss = 0.69003302
+Iteration 49, loss = 0.68999804
+Iteration 50, loss = 0.68996853
+Iteration 51, loss = 0.68994403
+Training loss did not improve more than tol=0.000100 for 10 consecutive epochs. Stopping.
+Iteration 1, loss = 0.69951585
+Iteration 2, loss = 0.69899673
+Iteration 3, loss = 0.69850097
+Iteration 4, loss = 0.69802689
+Iteration 5, loss = 0.69757662
+Iteration 6, loss = 0.69714916
+Iteration 7, loss = 0.69674529
+Iteration 8, loss = 0.69636958
+Iteration 9, loss = 0.69601845
+Iteration 10, loss = 0.69569261
+Iteration 11, loss = 0.69538857
+Iteration 12, loss = 0.69510619
+Iteration 13, loss = 0.69484475
+Iteration 14, loss = 0.69460395
+Iteration 15, loss = 0.69438348
+Iteration 16, loss = 0.69418293
+Iteration 17, loss = 0.69400180
+Iteration 18, loss = 0.69383977
+Iteration 19, loss = 0.69369599
+Iteration 20, loss = 0.69357115
+Iteration 21, loss = 0.69346093
+Iteration 22, loss = 0.69336624
+Iteration 23, loss = 0.69328502
+Iteration 24, loss = 0.69322025
+Iteration 25, loss = 0.69318104
+Iteration 26, loss = 0.69313920
+Iteration 27, loss = 0.69309827
+Iteration 28, loss = 0.69307593
+Iteration 29, loss = 0.69305660
+Iteration 30, loss = 0.69304117
+Iteration 31, loss = 0.69302727
+Iteration 32, loss = 0.69301672
+Training loss did not improve more than tol=0.000100 for 10 consecutive epochs. Stopping.
+Iteration 1, loss = 0.69949808
+Iteration 2, loss = 0.69898190
+Iteration 3, loss = 0.69848749
+Iteration 4, loss = 0.69801514
+Iteration 5, loss = 0.69756858
+Iteration 6, loss = 0.69714437
+Iteration 7, loss = 0.69674210
+Iteration 8, loss = 0.69636514
+Iteration 9, loss = 0.69601797
+Iteration 10, loss = 0.69569389
+Iteration 11, loss = 0.69539044
+Iteration 12, loss = 0.69510835
+Iteration 13, loss = 0.69484729
+Iteration 14, loss = 0.69460662
+Iteration 15, loss = 0.69438800
+Iteration 16, loss = 0.69418846
+Iteration 17, loss = 0.69400710
+Iteration 18, loss = 0.69384467
+Iteration 19, loss = 0.69370164
+Iteration 20, loss = 0.69357562
+Iteration 21, loss = 0.69346593
+Iteration 22, loss = 0.69337001
+Iteration 23, loss = 0.69328776
+Iteration 24, loss = 0.69322362
+Iteration 25, loss = 0.69317135
+Iteration 26, loss = 0.69313852
+Iteration 27, loss = 0.69311473
+Iteration 28, loss = 0.69307745
+Iteration 29, loss = 0.69305590
+Iteration 30, loss = 0.69304167
+Iteration 31, loss = 0.69303000
+Iteration 32, loss = 0.69302027
+Training loss did not improve more than tol=0.000100 for 10 consecutive epochs. Stopping.
+Iteration 1, loss = 0.70363930
+Iteration 2, loss = 0.70294985
+Iteration 3, loss = 0.70227611
+Iteration 4, loss = 0.70162530
+Iteration 5, loss = 0.70099806
+Iteration 6, loss = 0.70039461
+Iteration 7, loss = 0.69981496
+Iteration 8, loss = 0.69926327
+Iteration 9, loss = 0.69874189
+Iteration 10, loss = 0.69824560
+Iteration 11, loss = 0.69777148
+Iteration 12, loss = 0.69731942
+Iteration 13, loss = 0.69688932
+Iteration 14, loss = 0.69648121
+Iteration 15, loss = 0.69609485
+Iteration 16, loss = 0.69573012
+Iteration 17, loss = 0.69538684
+Iteration 18, loss = 0.69506476
+Iteration 19, loss = 0.69476354
+Iteration 20, loss = 0.69448290
+Iteration 21, loss = 0.69422159
+Iteration 22, loss = 0.69397973
+Iteration 23, loss = 0.69376506
+Iteration 24, loss = 0.69360241
+Iteration 25, loss = 0.69344400
+Iteration 26, loss = 0.69329958
+Iteration 27, loss = 0.69316696
+Iteration 28, loss = 0.69304463
+Iteration 29, loss = 0.69293285
+Iteration 30, loss = 0.69283235
+Iteration 31, loss = 0.69274370
+Iteration 32, loss = 0.69266550
+Iteration 33, loss = 0.69259870
+Iteration 34, loss = 0.69254136
+Iteration 35, loss = 0.69249118
+Iteration 36, loss = 0.69244831
+Iteration 37, loss = 0.69241210
+Iteration 38, loss = 0.69238187
+Iteration 39, loss = 0.69235694
+Iteration 40, loss = 0.69233663
+Iteration 41, loss = 0.69232026
+Training loss did not improve more than tol=0.000100 for 10 consecutive epochs. Stopping.
+Iteration 1, loss = 0.70363183
+Iteration 2, loss = 0.70294187
+Iteration 3, loss = 0.70226961
+Iteration 4, loss = 0.70161853
+Iteration 5, loss = 0.70099000
+Iteration 6, loss = 0.70038475
+Iteration 7, loss = 0.69980268
+Iteration 8, loss = 0.69925132
+Iteration 9, loss = 0.69872897
+Iteration 10, loss = 0.69823100
+Iteration 11, loss = 0.69775488
+Iteration 12, loss = 0.69730087
+Iteration 13, loss = 0.69686918
+Iteration 14, loss = 0.69645964
+Iteration 15, loss = 0.69607206
+Iteration 16, loss = 0.69570632
+Iteration 17, loss = 0.69536222
+Iteration 18, loss = 0.69503949
+Iteration 19, loss = 0.69473793
+Iteration 20, loss = 0.69445724
+Iteration 21, loss = 0.69419554
+Iteration 22, loss = 0.69395482
+Iteration 23, loss = 0.69374771
+Iteration 24, loss = 0.69359129
+Iteration 25, loss = 0.69343087
+Iteration 26, loss = 0.69328443
+Iteration 27, loss = 0.69315053
+Iteration 28, loss = 0.69302957
+Iteration 29, loss = 0.69292048
+Iteration 30, loss = 0.69282277
+Iteration 31, loss = 0.69273566
+Iteration 32, loss = 0.69265878
+Iteration 33, loss = 0.69259324
+Iteration 34, loss = 0.69253936
+Iteration 35, loss = 0.69249015
+Iteration 36, loss = 0.69244890
+Iteration 37, loss = 0.69241394
+Iteration 38, loss = 0.69238465
+Iteration 39, loss = 0.69236028
+Iteration 40, loss = 0.69234012
+Training loss did not improve more than tol=0.000100 for 10 consecutive epochs. Stopping.
+Cross-validation scores: [0.42857143 0.57142857 0.57142857 0.5        0.5       ]
+Mean cross-validation score: 0.5142857142857142
+Iteration 1, loss = 0.70285030
+Iteration 2, loss = 0.70219366
+Iteration 3, loss = 0.70155625
+Iteration 4, loss = 0.70094207
+Iteration 5, loss = 0.70035114
+Iteration 6, loss = 0.69978341
+Iteration 7, loss = 0.69923922
+Iteration 8, loss = 0.69872397
+Iteration 9, loss = 0.69823760
+Iteration 10, loss = 0.69777540
+Iteration 11, loss = 0.69733477
+Iteration 12, loss = 0.69691580
+Iteration 13, loss = 0.69651931
+Iteration 14, loss = 0.69614354
+Iteration 15, loss = 0.69578975
+Iteration 16, loss = 0.69545689
+Iteration 17, loss = 0.69514493
+Iteration 18, loss = 0.69485409
+Iteration 19, loss = 0.69458337
+Iteration 20, loss = 0.69433259
+Iteration 21, loss = 0.69410097
+Iteration 22, loss = 0.69388767
+Iteration 23, loss = 0.69369796
+Iteration 24, loss = 0.69355496
+Iteration 25, loss = 0.69342604
+Iteration 26, loss = 0.69330403
+Iteration 27, loss = 0.69319334
+Iteration 28, loss = 0.69309307
+Iteration 29, loss = 0.69300220
+Iteration 30, loss = 0.69292122
+Iteration 31, loss = 0.69285063
+Iteration 32, loss = 0.69278913
+Iteration 33, loss = 0.69273673
+Iteration 34, loss = 0.69269308
+Iteration 35, loss = 0.69265639
+Iteration 36, loss = 0.69262579
+Iteration 37, loss = 0.69260022
+Iteration 38, loss = 0.69257958
+Iteration 39, loss = 0.69256309
+Training loss did not improve more than tol=0.000100 for 10 consecutive epochs. Stopping.
+participant 1
+['T1' 'T1' 'T1' 'T1' 'T1' 'T1' 'T1' 'T1' 'T1' 'T1' 'T1' 'T1']
+[]
+[[ 2.02215788e-04 -2.11493199e-04  3.12023156e-04 ... -5.13964459e-04
+  -1.90871587e-04  1.41910597e-18]
+ [ 3.09996084e-03  4.93219513e-04  1.26863058e-03 ... -1.05178794e-04
+   3.84771609e-05  1.41910597e-18]
+ [ 1.36199641e-03  1.68719126e-03  3.75980587e-04 ... -3.82569118e-04
+   1.08528362e-04  1.41910597e-18]
+ ...
+ [-5.09079515e-04 -3.98934872e-04  5.49003077e-05 ...  1.16448861e-05
+   5.43880828e-05  1.41910597e-18]
+ [ 1.17240187e-03  1.42064646e-04 -8.88035702e-04 ... -2.35321446e-04
+  -5.41824213e-04  1.41910597e-18]
+ [-1.49802420e-03  1.57884910e-03  1.97795206e-03 ...  5.33749006e-05
+   1.19233553e-05  1.41910597e-18]]
+(42,)
+Iteration 1, loss = 0.70322323
+Iteration 2, loss = 0.70213495
+Iteration 3, loss = 0.70110382
+Iteration 4, loss = 0.70013822
+Iteration 5, loss = 0.69923818
+Iteration 6, loss = 0.69840420
+Iteration 7, loss = 0.69763649
+Iteration 8, loss = 0.69693494
+Iteration 9, loss = 0.69629915
+Iteration 10, loss = 0.69572836
+Iteration 11, loss = 0.69522144
+Iteration 12, loss = 0.69477686
+Iteration 13, loss = 0.69439266
+Iteration 14, loss = 0.69406640
+Iteration 15, loss = 0.69379518
+Iteration 16, loss = 0.69357562
+Iteration 17, loss = 0.69346676
+Iteration 18, loss = 0.69337990
+Iteration 19, loss = 0.69330605
+Iteration 20, loss = 0.69324966
+Iteration 21, loss = 0.69320849
+Iteration 22, loss = 0.69318241
+Iteration 23, loss = 0.69316740
+Iteration 24, loss = 0.69316084
+Iteration 25, loss = 0.69316022
+Iteration 26, loss = 0.69316338
+Iteration 27, loss = 0.69316963
+Iteration 28, loss = 0.69319253
+Training loss did not improve more than tol=0.000100 for 10 consecutive epochs. Stopping.
+Iteration 1, loss = 0.70880112
+Iteration 2, loss = 0.70737799
+Iteration 3, loss = 0.70601940
+Iteration 4, loss = 0.70472427
+Iteration 5, loss = 0.70349430
+Iteration 6, loss = 0.70233055
+Iteration 7, loss = 0.70123378
+Iteration 8, loss = 0.70020447
+Iteration 9, loss = 0.69924289
+Iteration 10, loss = 0.69834903
+Iteration 11, loss = 0.69752268
+Iteration 12, loss = 0.69676333
+Iteration 13, loss = 0.69607022
+Iteration 14, loss = 0.69544232
+Iteration 15, loss = 0.69487828
+Iteration 16, loss = 0.69437647
+Iteration 17, loss = 0.69408878
+Iteration 18, loss = 0.69381111
+Iteration 19, loss = 0.69356077
+Iteration 20, loss = 0.69333510
+Iteration 21, loss = 0.69313736
+Iteration 22, loss = 0.69296664
+Iteration 23, loss = 0.69281888
+Iteration 24, loss = 0.69269778
+Iteration 25, loss = 0.69263540
+Iteration 26, loss = 0.69255967
+Iteration 27, loss = 0.69249589
+Iteration 28, loss = 0.69244302
+Iteration 29, loss = 0.69239999
+Iteration 30, loss = 0.69236573
+Iteration 31, loss = 0.69233891
+Iteration 32, loss = 0.69231752
+Iteration 33, loss = 0.69230318
+Iteration 34, loss = 0.69229338
+Iteration 35, loss = 0.69228718
+Training loss did not improve more than tol=0.000100 for 10 consecutive epochs. Stopping.
+Iteration 1, loss = 0.70882627
+Iteration 2, loss = 0.70740241
+Iteration 3, loss = 0.70603752
+Iteration 4, loss = 0.70473652
+Iteration 5, loss = 0.70350103
+Iteration 6, loss = 0.70233221
+Iteration 7, loss = 0.70123091
+Iteration 8, loss = 0.70019766
+Iteration 9, loss = 0.69923278
+Iteration 10, loss = 0.69833632
+Iteration 11, loss = 0.69750807
+Iteration 12, loss = 0.69674758
+Iteration 13, loss = 0.69605410
+Iteration 14, loss = 0.69542659
+Iteration 15, loss = 0.69486373
+Iteration 16, loss = 0.69436489
+Iteration 17, loss = 0.69410921
+Iteration 18, loss = 0.69383182
+Iteration 19, loss = 0.69358168
+Iteration 20, loss = 0.69335687
+Iteration 21, loss = 0.69315940
+Iteration 22, loss = 0.69298897
+Iteration 23, loss = 0.69284156
+Iteration 24, loss = 0.69271782
+Iteration 25, loss = 0.69265139
+Iteration 26, loss = 0.69257643
+Iteration 27, loss = 0.69251348
+Iteration 28, loss = 0.69246147
+Iteration 29, loss = 0.69241933
+Iteration 30, loss = 0.69238598
+Iteration 31, loss = 0.69236033
+Iteration 32, loss = 0.69234130
+Iteration 33, loss = 0.69232773
+Iteration 34, loss = 0.69231801
+Iteration 35, loss = 0.69231252
+Training loss did not improve more than tol=0.000100 for 10 consecutive epochs. Stopping.
+Iteration 1, loss = 0.70879845
+Iteration 2, loss = 0.70737447
+Iteration 3, loss = 0.70600850
+Iteration 4, loss = 0.70470690
+Iteration 5, loss = 0.70347076
+Iteration 6, loss = 0.70230124
+Iteration 7, loss = 0.70119920
+Iteration 8, loss = 0.70016520
+Iteration 9, loss = 0.69919954
+Iteration 10, loss = 0.69830228
+Iteration 11, loss = 0.69747322
+Iteration 12, loss = 0.69671189
+Iteration 13, loss = 0.69601756
+Iteration 14, loss = 0.69538920
+Iteration 15, loss = 0.69482546
+Iteration 16, loss = 0.69432599
+Iteration 17, loss = 0.69408082
+Iteration 18, loss = 0.69380295
+Iteration 19, loss = 0.69355240
+Iteration 20, loss = 0.69332628
+Iteration 21, loss = 0.69312690
+Iteration 22, loss = 0.69295633
+Iteration 23, loss = 0.69281029
+Iteration 24, loss = 0.69268849
+Iteration 25, loss = 0.69262993
+Iteration 26, loss = 0.69255449
+Iteration 27, loss = 0.69249106
+Iteration 28, loss = 0.69243858
+Iteration 29, loss = 0.69239598
+Iteration 30, loss = 0.69236217
+Iteration 31, loss = 0.69233607
+Iteration 32, loss = 0.69231660
+Iteration 33, loss = 0.69230269
+Iteration 34, loss = 0.69229220
+Iteration 35, loss = 0.69228613
+Training loss did not improve more than tol=0.000100 for 10 consecutive epochs. Stopping.
+Iteration 1, loss = 0.70882890
+Iteration 2, loss = 0.70742451
+Iteration 3, loss = 0.70607543
+Iteration 4, loss = 0.70479122
+Iteration 5, loss = 0.70357257
+Iteration 6, loss = 0.70242004
+Iteration 7, loss = 0.70133400
+Iteration 8, loss = 0.70031464
+Iteration 9, loss = 0.69936198
+Iteration 10, loss = 0.69847583
+Iteration 11, loss = 0.69765578
+Iteration 12, loss = 0.69690120
+Iteration 13, loss = 0.69621122
+Iteration 14, loss = 0.69558472
+Iteration 15, loss = 0.69502033
+Iteration 16, loss = 0.69451641
+Iteration 17, loss = 0.69424449
+Iteration 18, loss = 0.69396464
+Iteration 19, loss = 0.69371071
+Iteration 20, loss = 0.69348216
+Iteration 21, loss = 0.69328005
+Iteration 22, loss = 0.69310017
+Iteration 23, loss = 0.69294452
+Iteration 24, loss = 0.69284175
+Iteration 25, loss = 0.69274564
+Iteration 26, loss = 0.69266165
+Iteration 27, loss = 0.69258916
+Iteration 28, loss = 0.69252728
+Iteration 29, loss = 0.69247512
+Iteration 30, loss = 0.69243177
+Iteration 31, loss = 0.69239632
+Iteration 32, loss = 0.69236785
+Iteration 33, loss = 0.69234423
+Iteration 34, loss = 0.69232710
+Iteration 35, loss = 0.69231444
+Training loss did not improve more than tol=0.000100 for 10 consecutive epochs. Stopping.
+Cross-validation scores: [0.57142857 0.5        0.5        0.5        0.5       ]
+Mean cross-validation score: 0.5142857142857142
+Iteration 1, loss = 0.70769343
+Iteration 2, loss = 0.70633355
+Iteration 3, loss = 0.70503266
+Iteration 4, loss = 0.70379558
+Iteration 5, loss = 0.70262390
+Iteration 6, loss = 0.70151885
+Iteration 7, loss = 0.70048128
+Iteration 8, loss = 0.69951171
+Iteration 9, loss = 0.69861040
+Iteration 10, loss = 0.69777733
+Iteration 11, loss = 0.69701221
+Iteration 12, loss = 0.69631444
+Iteration 13, loss = 0.69568312
+Iteration 14, loss = 0.69511705
+Iteration 15, loss = 0.69461465
+Iteration 16, loss = 0.69417404
+Iteration 17, loss = 0.69394921
+Iteration 18, loss = 0.69371207
+Iteration 19, loss = 0.69350139
+Iteration 20, loss = 0.69331534
+Iteration 21, loss = 0.69315487
+Iteration 22, loss = 0.69301944
+Iteration 23, loss = 0.69290638
+Iteration 24, loss = 0.69281205
+Iteration 25, loss = 0.69277186
+Iteration 26, loss = 0.69272052
+Iteration 27, loss = 0.69267947
+Iteration 28, loss = 0.69264754
+Iteration 29, loss = 0.69262356
+Iteration 30, loss = 0.69260638
+Iteration 31, loss = 0.69259487
+Iteration 32, loss = 0.69258795
+Iteration 33, loss = 0.69258460
+Iteration 34, loss = 0.69258387
+Training loss did not improve more than tol=0.000100 for 10 consecutive epochs. Stopping.
+participant 2
+[]
+['T2' 'T2' 'T2' 'T2' 'T2' 'T2' 'T2' 'T2' 'T2' 'T2' 'T2']
+[[ 1.75877543e-03 -2.42572046e-05  1.00424075e-04 ...  1.61071328e-03
+   9.66767743e-04 -2.02441620e-18]
+ [-8.55838583e-03  1.04644107e-04  8.00708440e-04 ...  1.81117010e-04
+  -6.98543835e-04 -2.02441620e-18]
+ [ 3.81999285e-04 -5.07215484e-04  8.41585312e-04 ... -6.01038965e-04
+  -5.07054001e-04 -2.02441620e-18]
+ ...
+ [ 7.79961410e-03  1.27195419e-03  1.29727353e-03 ...  2.24632488e-04
+  -1.49195479e-04 -2.02441620e-18]
+ [ 1.09665940e-03 -2.28868271e-03 -2.53741002e-03 ... -3.95479520e-04
+   9.28023494e-05 -2.02441620e-18]
+ [-1.23031744e-02 -1.24956992e-03  9.88345804e-04 ...  6.25409793e-04
+  -1.29700980e-04 -2.02441620e-18]]
+(45,)
+Iteration 1, loss = 0.69955355
+Iteration 2, loss = 0.69902809
+Iteration 3, loss = 0.69852901
+Iteration 4, loss = 0.69805478
+Iteration 5, loss = 0.69760172
+Iteration 6, loss = 0.69717245
+Iteration 7, loss = 0.69676730
+Iteration 8, loss = 0.69638632
+Iteration 9, loss = 0.69603737
+Iteration 10, loss = 0.69571015
+Iteration 11, loss = 0.69540302
+Iteration 12, loss = 0.69511860
+Iteration 13, loss = 0.69485535
+Iteration 14, loss = 0.69461293
+Iteration 15, loss = 0.69439099
+Iteration 16, loss = 0.69418911
+Iteration 17, loss = 0.69400677
+Iteration 18, loss = 0.69384332
+Iteration 19, loss = 0.69369765
+Iteration 20, loss = 0.69356906
+Iteration 21, loss = 0.69345757
+Iteration 22, loss = 0.69336026
+Iteration 23, loss = 0.69327742
+Iteration 24, loss = 0.69320937
+Iteration 25, loss = 0.69316073
+Iteration 26, loss = 0.69313643
+Iteration 27, loss = 0.69308609
+Iteration 28, loss = 0.69306504
+Iteration 29, loss = 0.69304596
+Iteration 30, loss = 0.69303052
+Iteration 31, loss = 0.69301773
+Iteration 32, loss = 0.69300714
+Training loss did not improve more than tol=0.000100 for 10 consecutive epochs. Stopping.
+Iteration 1, loss = 0.69955792
+Iteration 2, loss = 0.69903329
+Iteration 3, loss = 0.69853338
+Iteration 4, loss = 0.69805788
+Iteration 5, loss = 0.69760516
+Iteration 6, loss = 0.69717666
+Iteration 7, loss = 0.69677196
+Iteration 8, loss = 0.69639391
+Iteration 9, loss = 0.69604600
+Iteration 10, loss = 0.69571931
+Iteration 11, loss = 0.69541321
+Iteration 12, loss = 0.69512839
+Iteration 13, loss = 0.69486488
+Iteration 14, loss = 0.69462266
+Iteration 15, loss = 0.69440131
+Iteration 16, loss = 0.69420031
+Iteration 17, loss = 0.69401872
+Iteration 18, loss = 0.69385601
+Iteration 19, loss = 0.69371156
+Iteration 20, loss = 0.69358458
+Iteration 21, loss = 0.69347418
+Iteration 22, loss = 0.69337801
+Iteration 23, loss = 0.69329666
+Iteration 24, loss = 0.69322873
+Iteration 25, loss = 0.69318459
+Iteration 26, loss = 0.69316114
+Iteration 27, loss = 0.69312256
+Iteration 28, loss = 0.69308166
+Iteration 29, loss = 0.69306479
+Iteration 30, loss = 0.69304998
+Iteration 31, loss = 0.69303805
+Iteration 32, loss = 0.69302815
+Training loss did not improve more than tol=0.000100 for 10 consecutive epochs. Stopping.
+Iteration 1, loss = 0.69096739
+Iteration 2, loss = 0.69080491
+Iteration 3, loss = 0.69066938
+Iteration 4, loss = 0.69055710
+Iteration 5, loss = 0.69046774
+Iteration 6, loss = 0.69039974
+Iteration 7, loss = 0.69035184
+Iteration 8, loss = 0.69032241
+Iteration 9, loss = 0.69030649
+Iteration 10, loss = 0.69030204
+Iteration 11, loss = 0.69030387
+Iteration 12, loss = 0.69030827
+Iteration 13, loss = 0.69031282
+Iteration 14, loss = 0.69031508
+Iteration 15, loss = 0.69031160
+Training loss did not improve more than tol=0.000100 for 10 consecutive epochs. Stopping.
+Iteration 1, loss = 0.69543011
+Iteration 2, loss = 0.69507810
+Iteration 3, loss = 0.69475124
+Iteration 4, loss = 0.69445040
+Iteration 5, loss = 0.69417155
+Iteration 6, loss = 0.69391646
+Iteration 7, loss = 0.69368493
+Iteration 8, loss = 0.69347539
+Iteration 9, loss = 0.69329447
+Iteration 10, loss = 0.69313399
+Iteration 11, loss = 0.69299262
+Iteration 12, loss = 0.69287105
+Iteration 13, loss = 0.69276853
+Iteration 14, loss = 0.69268373
+Iteration 15, loss = 0.69261548
+Iteration 16, loss = 0.69256245
+Iteration 17, loss = 0.69252281
+Iteration 18, loss = 0.69249482
+Iteration 19, loss = 0.69247664
+Iteration 20, loss = 0.69246635
+Iteration 21, loss = 0.69246201
+Iteration 22, loss = 0.69246173
+Iteration 23, loss = 0.69246372
+Iteration 24, loss = 0.69246642
+Training loss did not improve more than tol=0.000100 for 10 consecutive epochs. Stopping.
+Iteration 1, loss = 0.69540373
+Iteration 2, loss = 0.69505547
+Iteration 3, loss = 0.69473402
+Iteration 4, loss = 0.69443544
+Iteration 5, loss = 0.69415988
+Iteration 6, loss = 0.69390735
+Iteration 7, loss = 0.69367774
+Iteration 8, loss = 0.69347074
+Iteration 9, loss = 0.69329108
+Iteration 10, loss = 0.69313242
+Iteration 11, loss = 0.69299274
+Iteration 12, loss = 0.69287206
+Iteration 13, loss = 0.69277014
+Iteration 14, loss = 0.69268584
+Iteration 15, loss = 0.69261804
+Iteration 16, loss = 0.69256544
+Iteration 17, loss = 0.69252614
+Iteration 18, loss = 0.69249848
+Iteration 19, loss = 0.69248075
+Iteration 20, loss = 0.69247092
+Iteration 21, loss = 0.69246705
+Iteration 22, loss = 0.69246731
+Iteration 23, loss = 0.69247002
+Iteration 24, loss = 0.69247373
+Training loss did not improve more than tol=0.000100 for 10 consecutive epochs. Stopping.
+Cross-validation scores: [0.42857143 0.42857143 0.42857143 0.5        0.5       ]
+Mean cross-validation score: 0.45714285714285713
+Iteration 1, loss = 0.69613405
+Iteration 2, loss = 0.69575279
+Iteration 3, loss = 0.69539768
+Iteration 4, loss = 0.69506788
+Iteration 5, loss = 0.69475933
+Iteration 6, loss = 0.69447398
+Iteration 7, loss = 0.69421233
+Iteration 8, loss = 0.69397422
+Iteration 9, loss = 0.69376438
+Iteration 10, loss = 0.69357538
+Iteration 11, loss = 0.69340585
+Iteration 12, loss = 0.69325672
+Iteration 13, loss = 0.69312735
+Iteration 14, loss = 0.69301667
+Iteration 15, loss = 0.69292406
+Iteration 16, loss = 0.69284833
+Iteration 17, loss = 0.69278773
+Iteration 18, loss = 0.69274086
+Iteration 19, loss = 0.69270630
+Iteration 20, loss = 0.69268247
+Iteration 21, loss = 0.69266745
+Iteration 22, loss = 0.69265946
+Iteration 23, loss = 0.69265671
+Iteration 24, loss = 0.69265709
+Iteration 25, loss = 0.69265916
+Training loss did not improve more than tol=0.000100 for 10 consecutive epochs. Stopping.
+participant 3
+[]
 ['T2' 'T2' 'T2' 'T2' 'T2' 'T2' 'T2' 'T2' 'T2' 'T2' 'T2' 'T2']
-iter [[[3 1 1 1 1 1 3 3 3 4]
-  [3 1 1 1 1 1 3 1 3 3]
-  [3 1 1 1 1 1 3 3 3 4]
-  [3 1 1 1 1 1 2 3 3 3]
-  [3 1 1 1 1 1 2 3 3 4]
-  [3 1 1 1 1 1 3 3 3 4]
-  [3 1 1 1 1 1 3 3 1 3]
-  [3 1 1 1 1 1 3 1 6 3]
-  [3 1 1 1 1 2 1 3 1 3]
-  [3 1 1 1 1 2 1 3 3 4]]]
+[[-4.60727729e-03  7.24364889e-04  8.71546593e-04 ...  3.15371943e-05
+   9.87489447e-05  6.81848363e-19]
+ [ 7.16591086e-04 -2.50710505e-03  7.57728631e-04 ...  6.87842181e-05
+  -4.03370956e-05  6.81848363e-19]
+ [-1.13200727e-03  1.02659129e-03  1.46066797e-03 ... -3.54737893e-05
+  -8.04458480e-05  6.81848363e-19]
+ ...
+ [-2.05579310e-03 -3.37959647e-04 -6.90766814e-04 ...  3.96938102e-05
+   9.81990743e-05  6.81848363e-19]
+ [ 3.41838161e-04  1.31707678e-04  9.50963247e-05 ... -8.20068481e-06
+   7.84731976e-05  6.81848363e-19]
+ [-1.25655828e-03  8.25046517e-04 -1.23561145e-03 ... -4.25764263e-05
+   3.02399999e-05  6.81848363e-19]]
+(42,)
+Iteration 1, loss = 0.70331489
+Iteration 2, loss = 0.70221227
+Iteration 3, loss = 0.70117495
+Iteration 4, loss = 0.70020293
+Iteration 5, loss = 0.69929708
+Iteration 6, loss = 0.69845810
+Iteration 7, loss = 0.69768637
+Iteration 8, loss = 0.69698198
+Iteration 9, loss = 0.69634470
+Iteration 10, loss = 0.69577390
+Iteration 11, loss = 0.69526857
+Iteration 12, loss = 0.69482722
+Iteration 13, loss = 0.69444788
+Iteration 14, loss = 0.69412809
+Iteration 15, loss = 0.69386484
+Iteration 16, loss = 0.69365456
+Iteration 17, loss = 0.69349406
+Iteration 18, loss = 0.69342311
+Iteration 19, loss = 0.69335843
+Iteration 20, loss = 0.69331141
+Iteration 21, loss = 0.69328124
+Iteration 22, loss = 0.69326377
+Iteration 23, loss = 0.69325506
+Iteration 24, loss = 0.69325556
+Iteration 25, loss = 0.69326231
+Iteration 26, loss = 0.69327221
+Iteration 27, loss = 0.69328363
+Iteration 28, loss = 0.69329520
+Training loss did not improve more than tol=0.000100 for 10 consecutive epochs. Stopping.
+Iteration 1, loss = 0.70895161
+Iteration 2, loss = 0.70752823
+Iteration 3, loss = 0.70616947
+Iteration 4, loss = 0.70487551
+Iteration 5, loss = 0.70364730
+Iteration 6, loss = 0.70248567
+Iteration 7, loss = 0.70139127
+Iteration 8, loss = 0.70036451
+Iteration 9, loss = 0.69940560
+Iteration 10, loss = 0.69851457
+Iteration 11, loss = 0.69769116
+Iteration 12, loss = 0.69693490
+Iteration 13, loss = 0.69624501
+Iteration 14, loss = 0.69562045
+Iteration 15, loss = 0.69505990
+Iteration 16, loss = 0.69456170
+Iteration 17, loss = 0.69419686
+Iteration 18, loss = 0.69392107
+Iteration 19, loss = 0.69367237
+Iteration 20, loss = 0.69345188
+Iteration 21, loss = 0.69325849
+Iteration 22, loss = 0.69309247
+Iteration 23, loss = 0.69294756
+Iteration 24, loss = 0.69282254
+Iteration 25, loss = 0.69273700
+Iteration 26, loss = 0.69266333
+Iteration 27, loss = 0.69260160
+Iteration 28, loss = 0.69255076
+Iteration 29, loss = 0.69250974
+Iteration 30, loss = 0.69247748
+Iteration 31, loss = 0.69245247
+Iteration 32, loss = 0.69243466
+Iteration 33, loss = 0.69242227
+Iteration 34, loss = 0.69241444
+Iteration 35, loss = 0.69241023
+Training loss did not improve more than tol=0.000100 for 10 consecutive epochs. Stopping.
+Iteration 1, loss = 0.70892017
+Iteration 2, loss = 0.70749704
+Iteration 3, loss = 0.70613895
+Iteration 4, loss = 0.70484569
+Iteration 5, loss = 0.70361816
+Iteration 6, loss = 0.70245720
+Iteration 7, loss = 0.70136340
+Iteration 8, loss = 0.70033718
+Iteration 9, loss = 0.69937876
+Iteration 10, loss = 0.69848815
+Iteration 11, loss = 0.69766511
+Iteration 12, loss = 0.69690914
+Iteration 13, loss = 0.69621949
+Iteration 14, loss = 0.69559510
+Iteration 15, loss = 0.69503465
+Iteration 16, loss = 0.69453648
+Iteration 17, loss = 0.69418141
+Iteration 18, loss = 0.69390594
+Iteration 19, loss = 0.69365752
+Iteration 20, loss = 0.69343781
+Iteration 21, loss = 0.69324409
+Iteration 22, loss = 0.69307729
+Iteration 23, loss = 0.69293255
+Iteration 24, loss = 0.69280915
+Iteration 25, loss = 0.69273370
+Iteration 26, loss = 0.69265973
+Iteration 27, loss = 0.69259768
+Iteration 28, loss = 0.69254649
+Iteration 29, loss = 0.69250511
+Iteration 30, loss = 0.69247245
+Iteration 31, loss = 0.69244737
+Iteration 32, loss = 0.69242904
+Iteration 33, loss = 0.69241625
+Iteration 34, loss = 0.69240803
+Iteration 35, loss = 0.69240344
+Training loss did not improve more than tol=0.000100 for 10 consecutive epochs. Stopping.
+Iteration 1, loss = 0.70895923
+Iteration 2, loss = 0.70753587
+Iteration 3, loss = 0.70617717
+Iteration 4, loss = 0.70488330
+Iteration 5, loss = 0.70365521
+Iteration 6, loss = 0.70249375
+Iteration 7, loss = 0.70139953
+Iteration 8, loss = 0.70037298
+Iteration 9, loss = 0.69941430
+Iteration 10, loss = 0.69852352
+Iteration 11, loss = 0.69770039
+Iteration 12, loss = 0.69694442
+Iteration 13, loss = 0.69625485
+Iteration 14, loss = 0.69563062
+Iteration 15, loss = 0.69507040
+Iteration 16, loss = 0.69457254
+Iteration 17, loss = 0.69419701
+Iteration 18, loss = 0.69392165
+Iteration 19, loss = 0.69367339
+Iteration 20, loss = 0.69345399
+Iteration 21, loss = 0.69325946
+Iteration 22, loss = 0.69309153
+Iteration 23, loss = 0.69294596
+Iteration 24, loss = 0.69282210
+Iteration 25, loss = 0.69274297
+Iteration 26, loss = 0.69266928
+Iteration 27, loss = 0.69260750
+Iteration 28, loss = 0.69255660
+Iteration 29, loss = 0.69251550
+Iteration 30, loss = 0.69248313
+Iteration 31, loss = 0.69245828
+Iteration 32, loss = 0.69244020
+Iteration 33, loss = 0.69242764
+Iteration 34, loss = 0.69241963
+Iteration 35, loss = 0.69241522
+Training loss did not improve more than tol=0.000100 for 10 consecutive epochs. Stopping.
+Iteration 1, loss = 0.70893984
+Iteration 2, loss = 0.70751656
+Iteration 3, loss = 0.70615796
+Iteration 4, loss = 0.70486418
+Iteration 5, loss = 0.70363617
+Iteration 6, loss = 0.70247479
+Iteration 7, loss = 0.70138064
+Iteration 8, loss = 0.70035414
+Iteration 9, loss = 0.69939551
+Iteration 10, loss = 0.69850476
+Iteration 11, loss = 0.69768166
+Iteration 12, loss = 0.69692570
+Iteration 13, loss = 0.69623613
+Iteration 14, loss = 0.69561189
+Iteration 15, loss = 0.69505165
+Iteration 16, loss = 0.69455377
+Iteration 17, loss = 0.69418282
+Iteration 18, loss = 0.69390748
+Iteration 19, loss = 0.69365926
+Iteration 20, loss = 0.69343966
+Iteration 21, loss = 0.69324459
+Iteration 22, loss = 0.69307538
+Iteration 23, loss = 0.69292916
+Iteration 24, loss = 0.69280509
+Iteration 25, loss = 0.69273276
+Iteration 26, loss = 0.69265912
+Iteration 27, loss = 0.69259742
+Iteration 28, loss = 0.69254661
+Iteration 29, loss = 0.69250560
+Iteration 30, loss = 0.69247335
+Iteration 31, loss = 0.69244840
+Iteration 32, loss = 0.69243046
+Iteration 33, loss = 0.69241806
+Iteration 34, loss = 0.69241021
+Iteration 35, loss = 0.69240598
+Training loss did not improve more than tol=0.000100 for 10 consecutive epochs. Stopping.
+Cross-validation scores: [0.57142857 0.5        0.5        0.5        0.5       ]
+Mean cross-validation score: 0.5142857142857142
+Iteration 1, loss = 0.70781523
+Iteration 2, loss = 0.70645491
+Iteration 3, loss = 0.70515938
+Iteration 4, loss = 0.70392876
+Iteration 5, loss = 0.70276399
+Iteration 6, loss = 0.70166591
+Iteration 7, loss = 0.70063509
+Iteration 8, loss = 0.69967191
+Iteration 9, loss = 0.69877653
+Iteration 10, loss = 0.69794889
+Iteration 11, loss = 0.69718863
+Iteration 12, loss = 0.69649515
+Iteration 13, loss = 0.69586752
+Iteration 14, loss = 0.69530450
+Iteration 15, loss = 0.69480454
+Iteration 16, loss = 0.69436575
+Iteration 17, loss = 0.69403786
+Iteration 18, loss = 0.69380268
+Iteration 19, loss = 0.69359377
+Iteration 20, loss = 0.69341207
+Iteration 21, loss = 0.69325464
+Iteration 22, loss = 0.69312159
+Iteration 23, loss = 0.69301014
+Iteration 24, loss = 0.69291706
+Iteration 25, loss = 0.69285931
+Iteration 26, loss = 0.69280921
+Iteration 27, loss = 0.69276933
+Iteration 28, loss = 0.69273850
+Iteration 29, loss = 0.69271557
+Iteration 30, loss = 0.69269940
+Iteration 31, loss = 0.69268888
+Iteration 32, loss = 0.69268280
+Iteration 33, loss = 0.69268045
+Iteration 34, loss = 0.69268074
+Training loss did not improve more than tol=0.000100 for 10 consecutive epochs. Stopping.
+participant 4
+[]
+['T2' 'T2' 'T2' 'T2' 'T2' 'T2' 'T2' 'T2' 'T2' 'T2' 'T2']
