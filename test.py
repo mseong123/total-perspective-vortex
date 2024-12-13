@@ -28,7 +28,7 @@ def main() -> None:
         pass
 
     result = []
-    for i in range(1,110):
+    for i in range(1,99):
         y = np.array([])
         X = np.array([[]])
         prefix=""
@@ -61,13 +61,20 @@ def main() -> None:
         X=pca.fit_transform(X)
         X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42, stratify=y)
         # Don't need put random_state for StratifiedKFold because no shuffling takes place before splitting, samples split as it is.
-        CV = StratifiedKFold(n_splits=10)
-        LR = LogisticRegressionCV(random_state=42, cv=CV, refit=False)
+        CV = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+        LR = LogisticRegressionCV(random_state=42, cv=CV, refit=True)
         LR.fit(X_train,y_train)
         # print(LR.scores_)
-        print(LR.score(X_test, y_test)) 
-        result.append(LR.score(X_test, y_test))
-        # result.append(LR.predict(X_test))
+        predict = LR.predict(X_test)
+        t1=predict[predict=='T1']
+        t2=predict[predict=='T2']
+        print(f"participant {i}")
+        print(t1)
+        print(t2)
+        score = LR.score(X_test, y_test)
+        print(f"score: {score}")
+        result.append(score)
+        # print(LR.predict(X_test))
         # print("iter",LR.n_iter_)
 
     print(result)
