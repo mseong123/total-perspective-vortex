@@ -7,6 +7,11 @@ from sklearn.decomposition import PCA
 from sklearn.linear_model import LogisticRegressionCV
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import StratifiedKFold
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import GroupKFold
+import sklearn
+
+sklearn.set_config(enable_metadata_routing=True)
 
 def configure_channel_location(raw:mne.io.Raw) -> None:
     new_channel:list[str]=['FC5', 'FC3', 'FC1', 'FCz', 'FC2', 'FC4', 'FC6', 'C5', \
@@ -28,10 +33,18 @@ def main() -> None:
         pass
 
     result = []
-    for i in range(1,99):
+    for i in range(1,50):
         y = np.array([])
         X = np.array([[]])
+        pca = PCA(random_state=42)
+        groups = []
         prefix=""
+        X_train_1 = []
+        X_train_2 = []
+        X_test = []
+        y_train_1 = []
+        y_train_2 = []
+        y_test = []
         if i < 10:
             prefix = "00"
         elif i < 100:
@@ -39,32 +52,74 @@ def main() -> None:
         else:
             prefix = ""
         for j in range(3):
-            experiment_no:int = 3 + j + (3 * j)
+            experiment_no:int = 5 + j + (3 * j)
             raw = mne.io.read_raw_edf(f"./data/files/S{prefix}{str(i)}/S{prefix}{str(i)}R{'0' if experiment_no < 10 else ''}{experiment_no}.edf",preload=True)
             configure_channel_location(raw)
             raw_filtered:mne.io.Raw = raw.copy().filter(8, 40)
             # baseline=None means using entire epoch as baseline for correction, if use baseline=(0,0) no baseline correction
             epochs:mne.Epochs = mne.Epochs(raw_filtered, tmin=0, tmax=raw_filtered.annotations.duration.mean(),baseline=(0,0),preload=True)
-            y = np.hstack((y, [str(id) for id in raw_filtered.annotations.description if id == 'T1' or id == 'T2']))
+            # y = np.hstack((y, [str(id) for id in raw_filtered.annotations.description if id == 'T1' or id == 'T2']))
+            y = [str(id) for id in raw_filtered.annotations.description if id == 'T1' or id == 'T2']
+
             if (len(epochs.get_data())==29):
                 y=y[:-1]
 
             mask:list[bool]=[True if id == 'T0' else False for id in raw_filtered.annotations.description]
             epochs.drop(mask)
-           
-            if j == 0:
-                X = epochs.get_data().reshape(epochs.get_data().shape[0],-1)
-            else:
-                X = np.vstack((X,epochs.get_data().reshape(epochs.get_data().shape[0],-1)))
+            # epochs.plot()
+            # plt.show()
+            data = []
+            for idx,value in enumerate(epochs.get_data()):
+                if (idx == 0):
+                    data.append(pca.fit_transform(value).tolist())
+                else:
+                    data.append(pca.transform(value).tolist())
+            data = np.array(data)
+            
+            # if j == 0:
+            #     X = data.reshape(data.shape[0], -1)
+            # else:
+            #     X = np.vstack((X,data.reshape(data.shape[0],-1)))
+            
+            X = data.reshape(data.shape[0], -1)
 
-        pca = PCA(random_state=42)
-        X=pca.fit_transform(X)
-        X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42, stratify=y)
+            if j == 2:
+                X = data.reshape(data.shape[0], -1)
+                X_train_1 = X
+                y_train_1 = np.array(y)
+                groups.append([j] *len(X))
+            elif j == 1:
+                X_train_2 = X
+                y_train_2=np.array(y)
+                groups.append([j] *len(X))
+            elif j ==0:
+                X_test = X
+                y_test = np.array(y)
+        # X = X.transpose([0,2,1])
+        # reduced_data = []
+        # pca2 = PCA(random_state=42, n_components=30)
+        # for sample in X:
+        #     reduced_sample = pca2.fit_transform(sample)
+        #     reduced_data.append(reduced_sample)
+        # reduced_data = np.array(reduced_data)
+        # X = reduced_data.transpose(0,2,1)
+        # X = X.reshape(X.shape[0], -1)
+        # print(X.shape)
+        groups = [item for sublist in groups for item in sublist]
+        group_kfold = GroupKFold(n_splits=2) 
+        scaler = StandardScaler()
+        X_train_1 = scaler.fit_transform(X_train_1)
+        X_train_2 = scaler.fit_transform(X_train_2)
+        X_train = np.concatenate((X_train_1, X_train_2))
+        y_train = np.concatenate((y_train_1, y_train_2))
+        print(X_train.shape)
+        # X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42, stratify=y, groups=groups)
+        X_test = scaler.fit_transform(X_test)
         # Don't need put random_state for StratifiedKFold because no shuffling takes place before splitting, samples split as it is.
-        CV = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
-        LR = LogisticRegressionCV(random_state=42, cv=CV, refit=True)
-        LR.fit(X_train,y_train)
-        # print(LR.scores_)
+        CV = StratifiedKFold(n_splits=5)
+        LR = LogisticRegressionCV(random_state=42, cv=group_kfold, refit=True, solver="saga",max_iter=1000,Cs=[0.00000001,0.1,1,10,1000000000])
+        LR.fit(X_train,y_train, groups=groups)
+        print(LR.scores_)
         predict = LR.predict(X_test)
         t1=predict[predict=='T1']
         t2=predict[predict=='T2']
