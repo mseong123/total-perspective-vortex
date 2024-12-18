@@ -4,12 +4,14 @@ import matplotlib
 import numpy as np
 import os
 from sklearn.decomposition import PCA
+from mne.preprocessing import ICA
 from sklearn.linear_model import LogisticRegressionCV
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import StratifiedKFold
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import GroupKFold
 import sklearn
+from sklearn.neural_network import MLPClassifier
 
 sklearn.set_config(enable_metadata_routing=True)
 
@@ -33,7 +35,7 @@ def main() -> None:
         pass
 
     result = []
-    for i in range(1,50):
+    for i in range(1,30):
         y = np.array([])
         X = np.array([[]])
         pca = PCA(random_state=42)
@@ -52,12 +54,27 @@ def main() -> None:
         else:
             prefix = ""
         for j in range(3):
-            experiment_no:int = 5 + j + (3 * j)
+            experiment_no:int = 4 + j + (3 * j)
             raw = mne.io.read_raw_edf(f"./data/files/S{prefix}{str(i)}/S{prefix}{str(i)}R{'0' if experiment_no < 10 else ''}{experiment_no}.edf",preload=True)
             configure_channel_location(raw)
             raw_filtered:mne.io.Raw = raw.copy().filter(8, 40)
+            print('shape',raw_filtered.get_data().shape)
+
+            # ica = ICA(random_state=42)
+            # ica.fit(raw_filtered)
+            # eog_indices,scores = ica.find_bads_eog(raw_filtered, ch_name=['Fp1','Fpz','Fp2','AF7','AF8'])
+            # muscle_indices,scores = ica.find_bads_muscle(raw_filtered)
+            # ica.exclude += eog_indices
+            # ica.exclude+=muscle_indices
+            # raw_filtered = ica.apply(raw_filtered)
+            # variances = np.var(raw_filtered.get_data(), axis=1)
+            # low_percentile = np.percentile(variances, 5)  # 10th percentile for low variance
+            # high_percentile = np.percentile(variances, 95)  #
+            # bad_channels = [ch for ch, var in zip(raw_filtered.ch_names, variances) if var < low_percentile or var > high_percentile]
+            # raw_filtered = raw_filtered.drop_channels(bad_channels)
+            # print(len(raw_filtered.ch_names))
             # baseline=None means using entire epoch as baseline for correction, if use baseline=(0,0) no baseline correction
-            epochs:mne.Epochs = mne.Epochs(raw_filtered, tmin=0, tmax=raw_filtered.annotations.duration.mean(),baseline=(0,0),preload=True)
+            epochs:mne.Epochs = mne.Epochs(raw_filtered, tmin=0, tmax=raw_filtered.annotations.duration.mean(),baseline=None,preload=True)
             # y = np.hstack((y, [str(id) for id in raw_filtered.annotations.description if id == 'T1' or id == 'T2']))
             y = [str(id) for id in raw_filtered.annotations.description if id == 'T1' or id == 'T2']
 
@@ -112,12 +129,11 @@ def main() -> None:
         X_train_2 = scaler.fit_transform(X_train_2)
         X_train = np.concatenate((X_train_1, X_train_2))
         y_train = np.concatenate((y_train_1, y_train_2))
-        print(X_train.shape)
         # X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42, stratify=y, groups=groups)
         X_test = scaler.fit_transform(X_test)
         # Don't need put random_state for StratifiedKFold because no shuffling takes place before splitting, samples split as it is.
         CV = StratifiedKFold(n_splits=5)
-        LR = LogisticRegressionCV(random_state=42, cv=group_kfold, refit=True, solver="saga",max_iter=1000,Cs=[0.00000001,0.1,1,10,1000000000])
+        LR = LogisticRegressionCV(random_state=42, cv=group_kfold,verbose=0, solver="saga", refit=True)
         LR.fit(X_train,y_train, groups=groups)
         print(LR.scores_)
         predict = LR.predict(X_test)
@@ -129,9 +145,23 @@ def main() -> None:
         score = LR.score(X_test, y_test)
         print(f"score: {score}")
         result.append(score)
-        # print(LR.predict(X_test))
+        print(LR.predict(X_test))
         # print("iter",LR.n_iter_)
 
+    
+        # classifier = MLPClassifier(random_state=42,hidden_layer_sizes=(2000,1000, 500,250), verbose=1,alpha=0.001)
+        # classifier.fit(X_train, y_train)
+        # predict = classifier.predict(X_test)
+        # print("response")
+        # print([predict == y_test]) 
+        # score=classifier.score(X_test,y_test)
+        # print(score)
+        # t1=predict[predict=='T1']
+        # t2=predict[predict=='T2']
+        # print(f"participant {i}")
+        # print(t1)
+        # print(t2)
+        # result.append(score)
     print(result)
     print(np.array(result).mean())
 
