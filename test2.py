@@ -36,10 +36,7 @@ def main() -> None:
         pass
 
     result = []
-    for i in range(1,2):
-        y = np.array([])
-        X = np.array([[]])
-        pca = PCA(random_state=42, n_components=32)
+    for i in range(1,99):
         prefix=""
         all_data=None
         if i < 10:
@@ -49,7 +46,7 @@ def main() -> None:
         else:
             prefix = ""
         for j in range(3):
-            experiment_no:int = 6 + j + (3 * j)
+            experiment_no:int = 4 + j + (3 * j)
             raw = mne.io.read_raw_edf(f"./data/files/S{prefix}{str(i)}/S{prefix}{str(i)}R{'0' if experiment_no < 10 else ''}{experiment_no}.edf",preload=True)
             configure_channel_location(raw)
             raw_filtered:mne.io.Raw = raw.copy().filter(0.1, 30)
@@ -57,10 +54,9 @@ def main() -> None:
 
 
             ica = ICA(random_state=42, n_components=0.99)
-           
-
-            epochs_ica = mne.Epochs(raw_filtered, tmin=-0.1, tmax=1.0,baseline=None,preload=True)
-
+            res = raw.copy().filter(1,30)
+            events_ica = mne.make_fixed_length_events(res, duration=1)
+            epochs_ica = mne.Epochs(res,events_ica, tmin=0, tmax=1.0,baseline=None,preload=True)
             
             ar = AutoReject(
                 n_interpolate=[1, 2, 4],
@@ -89,6 +85,7 @@ def main() -> None:
                 z_thresh -= z_step
 
             ica.exclude = eog_indices
+            print(ica.exclude)
             epochs = mne.Epochs(raw_filtered, tmin=-0.1, tmax=1.0,baseline=(None,0),preload=True)
             epochs_postica = ica.apply(epochs.copy())
             ar = AutoReject(
@@ -101,12 +98,12 @@ def main() -> None:
                 n_jobs=-1, 
                 verbose=False)
             epochs_clean = ar.fit_transform(epochs_postica)
-            df=epochs.to_data_frame()
+            df=epochs_clean.to_data_frame()
             if (all_data is None):
                 all_data = df
             else:
                 all_data = pd.concat([all_data,df])
-            all_data.to_csv("hello.csv")     
+            all_data.to_csv(f"morning{i}.csv")     
 
     
   

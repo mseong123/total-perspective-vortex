@@ -4,7 +4,7 @@ import matplotlib
 import numpy as np
 import os
 from sklearn.decomposition import PCA
-from sklearn.linear_model import LogisticRegressionCV
+from sklearn.linear_model import LogisticRegression, LogisticRegressionCV
 from sklearn.model_selection import train_test_split, RandomizedSearchCV
 from sklearn.model_selection import StratifiedKFold
 from sklearn.preprocessing import StandardScaler
@@ -17,7 +17,7 @@ from sklearn.metrics import accuracy_score
 
 
 
-
+from sklearn.model_selection import GridSearchCV
 
 def configure_channel_location(raw:mne.io.Raw) -> None:
     new_channel:list[str]=['FC5', 'FC3', 'FC1', 'FCz', 'FC2', 'FC4', 'FC6', 'C5', \
@@ -37,18 +37,27 @@ def main() -> None:
         os.mkdir("plot/")
     except FileExistsError:
         pass
+    param_grid = {
+    'C': [0.1, 1, 10],  # Regularization strength
+    'penalty': ['l1', 'l2', 'elasticnet'],  # Regularization type
+    'solver': ['saga'],  # Supports l1, l2, and elasticnet
+    'l1_ratio': [0.1, 0.5, 0.9],  # ElasticNet mix ratio
+    'class_weight': ['balanced', None],  # Handle class imbalance
+    }
     result = []
-    frame = pd.read_csv("./hello.csv")
-    X = frame.drop(["condition", "Unnamed: 0", "epoch"], axis=1)
-    target = pd.Series(frame['condition'].values)
-    scaler = StandardScaler()
-    pca = PCA(random_state=42, n_components=65)
-    train_data, test_data, train_target, test_target = train_test_split(X, target, test_size=0.4, random_state=1)
-    print(train_data)
-    train_data = scaler.fit_transform(train_data)
-    test_data = scaler.fit_transform(test_data)
-    train_data = pca.fit_transform(train_data)
-    test_data = pca.fit_transform(test_data)
+    for i in range(2,3):
+        frame = pd.read_csv(f"./goodbye{i}.csv")
+        # frame = pd.read_csv(f"./data.csv")
+        X = frame[(frame['condition'] == 'T1') | (frame['condition'] == 'T2')]
+        target = pd.Series(X['condition'].values)
+        X = X.drop(["condition", "Unnamed: 0", "epoch"], axis=1)
+        scaler = StandardScaler()
+        pca = PCA(random_state=42, n_components=65)
+        train_data, test_data, train_target, test_target = train_test_split(X, target, test_size=0.3, random_state=42)
+        train_data = scaler.fit_transform(train_data)
+        test_data = scaler.fit_transform(test_data)
+        train_data = pca.fit_transform(train_data)
+        test_data = pca.fit_transform(test_data)
     # print(pd.DataFrame(train_data))
     # parameter_grid = {
 
@@ -63,28 +72,34 @@ def main() -> None:
 	# 	n_iter=5,
 	# 	verbose=4,
 	# )
-    # classifier = MLPClassifier(max_iter = 1000, random_state=42, alpha=0.4, verbose)
-    # classifier.fit(train_data, train_target)
-    # print("here")
-    # print(classifier.score(test_data,test_target))
+        classifier = MLPClassifier(max_iter = 1000,hidden_layer_sizes=(40,20), random_state=42, alpha=0.2)
+        classifier.fit(train_data, train_target)
+        score = classifier.score(test_data,test_target)
+        print("score:",score)
+        result.append(score)
 
+        # grid_search = RandomizedSearchCV(
+        #     estimator=LogisticRegression(max_iter=1000),
+        #     param_distributions=param_grid,
+        #     cv=5,
+        # )
+        # grid_search.fit(train_data, train_target)
 
-    CV = StratifiedKFold(n_splits=5)
-    LR = LogisticRegressionCV(random_state=42, verbose=1, cv=CV, refit=True)
-    LR.fit(train_data,train_target)
-    print(LR.scores_)
-    predict = LR.predict(test_data)
-    t1=predict[predict=="rest"]
-    t2=predict[predict=="imagine/feet"]
-    t3=predict[predict=="imagine/hands"]
-    print(t1)
-    print(t2)
-    print(t3)
-    score = LR.score(test_data, test_target)
-    print(f"score: {score}")
-    print(f"accuracy_score{accuracy_score(test_target,predict) }")
+        # print("Best Parameters:", grid_search.best_params_)
+        # print("score", grid_search.score(test_data, test_target))
 
+        # CV = StratifiedKFold(n_splits=5)
+        # LR = LogisticRegressionCV(random_state=42, cv=CV,Cs=[0.1,1,10], refit=True,max_iter=2000)
+        # LR.fit(train_data,train_target)
+        # print(LR.scores_)
+        # predict = LR.predict(test_data)
+        # score = LR.score(test_data, test_target)
+        # print(f"score: {score}")
+        # print(f"accuracy_score{accuracy_score(test_target,predict)}")
+        # result.append(score)
 
+    print(result)
+    print(np.array(result).mean())
 
 
 
