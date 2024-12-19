@@ -55,159 +55,58 @@ def main() -> None:
             raw_filtered:mne.io.Raw = raw.copy().filter(0.1, 30)
            
 
-            # if i == 1 and j ==0:
 
             ica = ICA(random_state=42, n_components=0.99)
            
-            # baseline=None means using entire epoch as baseline for correction, if use baseline=(0,0) no baseline correction
 
-            epochs:mne.Epochs = mne.Epochs(raw_filtered, tmin=-0.1, tmax=1.0,baseline=(None,0),preload=True)
-            # mask:list[bool]=[True if id == 'T0' else False for id in raw_filtered.annotations.description]
-            # epochs.drop(mask)
+            epochs_ica = mne.Epochs(raw_filtered, tmin=-0.1, tmax=1.0,baseline=None,preload=True)
 
             
-            # epochs.plot(scalings={"eeg":100e-6})
             ar = AutoReject(
                 n_interpolate=[1, 2, 4],
                 random_state=42,
-                picks=mne.pick_types(epochs.info, 
+                picks=mne.pick_types(epochs_ica.info, 
                                      eeg=True,
                                      eog=False
                                     ),
                 n_jobs=-1, 
                 verbose=False)
-            ar.fit(epochs)
-            reject_log = ar.get_reject_log(epochs)
-            epochs=ar.transform(epochs)
-            # fig, ax = plt.subplots(figsize=[15, 10])
-            # reject_log.plot('horizontal', ax=ax, aspect='auto')
-            # epochs.plot(scalings={"eeg":100e-6})
-            # plt.show()
-            print(reject_log.bad_epochs)
-            epochs_ica = ica.fit(epochs)
-            eog_indices,scores = epochs_ica.find_bads_eog(epochs, ch_name=['Fp1','Fpz','Fp2','AF7','AF8'])
-            # muscle_indices,scores = epochs_ica.find_bads_muscle(epochs)
-            epochs_ica.exclude += eog_indices
-            # epochs_ica.exclude+=muscle_indices
-            epochs = epochs_ica.apply(epochs)
+            ar.fit(epochs_ica)
+            reject_log = ar.get_reject_log(epochs_ica)
+            ica.fit(epochs_ica[~reject_log.bad_epochs], decim=3)
+            ica.exclude = []
+            num_excl = 0
+            max_ic = 2
+            z_thresh = 3.5
+            z_step = .05
+
+            while num_excl < max_ic:
+                eog_indices, eog_scores = ica.find_bads_eog(epochs_ica,
+													ch_name=['Fp1', 'Fp2', 'F7', 'F8'], 
+													threshold=z_thresh
+													)
+                num_excl = len(eog_indices)
+                z_thresh -= z_step
+
+            ica.exclude = eog_indices
+            epochs = mne.Epochs(raw_filtered, tmin=-0.1, tmax=1.0,baseline=(None,0),preload=True)
+            epochs_postica = ica.apply(epochs.copy())
             ar = AutoReject(
                 n_interpolate=[1, 2, 4],
                 random_state=42,
-                picks=mne.pick_types(epochs.info, 
+                picks=mne.pick_types(epochs_postica.info, 
                                      eeg=True,
                                      eog=False
                                     ),
                 n_jobs=-1, 
                 verbose=False)
-            epochs = ar.fit_transform(epochs)
+            epochs_clean = ar.fit_transform(epochs_postica)
             df=epochs.to_data_frame()
             if (all_data is None):
                 all_data = df
             else:
                 all_data = pd.concat([all_data,df])
-            all_data.to_csv("hello.csv")
-            y = np.hstack((y,np.array([event[2] for event in epochs.events])))
-            # fig, ax = plt.subplots(figsize=[15, 10])
-            # reject_log.plot('horizontal', ax=ax, aspect='auto')
-            # epochs.plot(scalings={"eeg":100e-6})
-            # plt.show()
-            data = []
-            for idx,value in enumerate(epochs.get_data()):
-                # # if idx==0:
-                # #     data.append(pca.fit_transform(value).tolist())
-                # else:
-                data.append(pca.fit_transform(value).tolist())
-                # data.append(pca.fit_transform(value).tolist())
-            data = np.array(data)
-            if j == 0:
-                # X = data.reshape(data.shape[0],-1)
-                X = data
-            else:
-                # X = np.vstack((X,data.reshape(data.shape[0],-1)))
-                X = np.vstack((X,data))
-        # X = X.transpose([0,2,1])
-        # reduced_data = []
-        # pca2 = PCA(random_state=42, n_components=32)
-        # for sample in X:
-        #     reduced_sample = pca2.fit_transform(sample)
-        #     reduced_data.append(reduced_sample)
-        # reduced_data = np.array(reduced_data)
-        # X = reduced_data.transpose(0,2,1)
-        X = X.reshape(X.shape[0], -1)
-        scaler = StandardScaler()
-        X = scaler.fit_transform(X)
-
-        print(X.shape)
-        X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42, stratify=y)
-        # cv_scores=cross_val_score(classifier, X_train, y_train, cv=5)
-        # print("Cross-validation scores:", cv_scores)
-        # print("Mean cross-validation score:", cv_scores.mean())
-
-        classifier = MLPClassifier(random_state=42, alpha=0.001, verbose=1)
-        classifier.fit(X_train, y_train)
-        predict = classifier.predict(X_test)
-        print("response")
-        print([predict == y_test])
-        t1=predict[predict==1]
-        t2=predict[predict==2]
-        t3=predict[predict==3]
-        print(f"participant {i}")
-        print(t1)
-        print(t2)
-        print(t3)
-        score=classifier.score(X_test,y_test)
-        print(score)
-        result.append(score)
-
-
-
-        # CV = StratifiedKFold(n_splits=5)
-        # LR = LogisticRegressionCV(random_state=42, solver="saga", cv=CV, refit=True)
-        # LR.fit(X_train,y_train)
-        # print(LR.scores_)
-        # predict = LR.predict(X_test)
-        # t1=predict[predict==1]
-        # t2=predict[predict==2]
-        # t3=predict[predict==3]
-        # print(f"participant {i}")
-        # print(t1)
-        # print(t2)
-        # print(t3)
-        # score = LR.score(X_test, y_test)
-        # print(f"score: {score}")
-        # result.append(score)
-        # print(LR.predict(X_test))
-
-
-    print(result)
-    print(np.array(result).mean())
-
-
-    # raw = mne.io.read_raw_edf(f"./data/files/S004/S004R04.edf",preload=True)
-    # configure_channel_location(raw)
-    # raw_filtered = raw.copy().filter(8, 40)
-    # print(raw.get_data().shape)
-    # epochs:mne.Epochs = mne.Epochs(raw_filtered, tmin=0, tmax=np.round(raw_filtered.annotations.duration.mean(),2) - 0.01,baseline=(None,None),preload=True)
-    # X = epochs.get_data().reshape(epochs.get_data().shape[0],-1)
-    # y = raw_filtered.annotations.description
-    # All below random_state is for different reasons
-    # # print("Cs",LR.Cs_)
-    # print("Coefficients",LR.coef_.shape)
-    # print("Clases",LR.classes_)
-
-    # plotting
-    # fig = raw.plot(block=True, clipping=None, scalings={"eeg":70e-6}, show=False)
-    # fig.savefig(f"plot/raw.png", format="png")
-    # fig_filtered = raw_filtered.plot(block=True, clipping=None, scalings={"eeg":70e-6}, show=False)
-    # fig_filtered.savefig(f"plot/raw_filtered.png", format="png")
-    # fig_raw_fft = raw.compute_psd().plot(show=False)
-    # fig_raw_fft.savefig(f"plot/raw_fft.png", format="png")
-    # fig_raw_filtered_fft = raw_filtered.compute_psd().plot(show=False)
-    # fig_raw_filtered_fft.savefig(f"plot/raw_filtered_fft.png", format="png")
-
-    # pca = PCA(random_state=42)
-    # pca.fit(flattened_epoch_sample)
-     
+            all_data.to_csv("hello.csv")     
 
     
   
