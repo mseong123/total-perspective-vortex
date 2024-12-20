@@ -36,7 +36,7 @@ def main() -> None:
         pass
 
     result = []
-    for i in range(1,99):
+    for i in range(80,90):
         prefix=""
         all_data=None
         if i < 10:
@@ -46,30 +46,27 @@ def main() -> None:
         else:
             prefix = ""
         for j in range(3):
-            experiment_no:int = 6 + j + (3 * j)
+            experiment_no:int = 4 + j + (3 * j)
             raw = mne.io.read_raw_edf(f"./data/files/S{prefix}{str(i)}/S{prefix}{str(i)}R{'0' if experiment_no < 10 else ''}{experiment_no}.edf",preload=True)
             configure_channel_location(raw)
-            raw_filtered:mne.io.Raw = raw.copy().filter(0.1, 30)
+            raw_filtered:mne.io.Raw = raw.copy().filter(1, 40)
            
-
-
             ica = ICA(random_state=42, n_components=0.99)
-            res = raw.copy().filter(1,30)
-            events_ica = mne.make_fixed_length_events(res, duration=1)
-            epochs_ica = mne.Epochs(res,events_ica, tmin=0, tmax=1.0,baseline=None,preload=True)
+            # events_ica = mne.make_fixed_length_events(res, duration=1)
+            epochs = mne.Epochs(raw_filtered, tmin=-0.1, tmax=4.0,baseline=(None,0), preload=True)
             
             ar = AutoReject(
                 n_interpolate=[1, 2, 4],
                 random_state=42,
-                picks=mne.pick_types(epochs_ica.info, 
+                picks=mne.pick_types(epochs.info, 
                                      eeg=True,
                                      eog=False
-                                    ),
+                ),
                 n_jobs=-1, 
                 verbose=False)
-            ar.fit(epochs_ica)
-            reject_log = ar.get_reject_log(epochs_ica)
-            ica.fit(epochs_ica[~reject_log.bad_epochs], decim=3)
+            ar.fit(epochs)
+            reject_log = ar.get_reject_log(epochs)
+            ica.fit(epochs[~reject_log.bad_epochs], decim=3)
             ica.exclude = []
             num_excl = 0
             max_ic = 2
@@ -77,7 +74,7 @@ def main() -> None:
             z_step = .05
 
             while num_excl < max_ic:
-                eog_indices, eog_scores = ica.find_bads_eog(epochs_ica,
+                eog_indices, eog_scores = ica.find_bads_eog(epochs,
 													ch_name=['Fp1', 'Fp2', 'F7', 'F8'], 
 													threshold=z_thresh
 													)
@@ -86,7 +83,6 @@ def main() -> None:
 
             ica.exclude = eog_indices
             print(ica.exclude)
-            epochs = mne.Epochs(raw_filtered, tmin=-0.1, tmax=1.0,baseline=(None,0),preload=True)
             epochs_postica = ica.apply(epochs.copy())
             ar = AutoReject(
                 n_interpolate=[1, 2, 4],
