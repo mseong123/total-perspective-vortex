@@ -45,10 +45,10 @@ def main() -> None:
     'class_weight': ['balanced', None],  # Handle class imbalance
     }
     result = []
-    for i in range(90,100):
-        frame = pd.read_csv(f"./mytest-{i}.csv")
+    for i in range(1,8):
+        frame = pd.read_csv(f"./preprocessed_data_batch/S00{i}R11.csv")
         # frame = pd.read_csv(f"./data.csv")
-        X = frame[(frame['condition'] == 'T0') | (frame['condition'] == 'T1')]
+        X = frame[(frame['condition'] == 'T1') | (frame['condition'] == "T2")]
         target = pd.Series(X['condition'].values)
         X = X.drop(["condition", "Unnamed: 0", "epoch"], axis=1)
         scaler = StandardScaler()

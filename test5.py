@@ -36,7 +36,7 @@ def main() -> None:
         pass
 
     result = []
-    for i in range(91,100):
+    for i in range(90,91):
         prefix=""
         all_data=None
         if i < 10:

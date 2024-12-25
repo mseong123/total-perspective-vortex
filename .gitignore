@@ -1,5 +1,3 @@
 data/
-hello*
-data.csv
-experiment*
-mytest*
+preprocessed_data_batch/
+preprocessed_data_indiv/
