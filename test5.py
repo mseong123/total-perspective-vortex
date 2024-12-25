@@ -36,7 +36,7 @@ def main() -> None:
         pass
 
     result = []
-    for i in range(80,90):
+    for i in range(65,70):
         prefix=""
         all_data=None
         if i < 10:
@@ -46,15 +46,17 @@ def main() -> None:
         else:
             prefix = ""
         for j in range(3):
-            experiment_no:int = 4 + j + (3 * j)
+            experiment_no:int = 6 + j + (3 * j)
             raw = mne.io.read_raw_edf(f"./data/files/S{prefix}{str(i)}/S{prefix}{str(i)}R{'0' if experiment_no < 10 else ''}{experiment_no}.edf",preload=True)
             configure_channel_location(raw)
-            raw_filtered:mne.io.Raw = raw.copy().filter(1, 40)
+            # raw.plot(scalings={"eeg":100e-6}, title = "before frequency highpass and lowpass filtering")
+            raw_filtered:mne.io.Raw = raw.copy().filter(8, 40)
            
+            # raw_filtered.plot(scalings={"eeg":100e-6},title="after frequency highpass and lowpass filtering")
             ica = ICA(random_state=42, n_components=0.99)
             # events_ica = mne.make_fixed_length_events(res, duration=1)
-            epochs = mne.Epochs(raw_filtered, tmin=-0.1, tmax=4.0,baseline=(None,0), preload=True)
-            
+            epochs = mne.Epochs(raw_filtered, tmin=0, tmax=raw_filtered.annotations.duration.mean(),baseline=(0,0), preload=True)
+            # epochs.plot(block=True, scalings={"eeg":100e-6}, events=True, n_epochs=8)
             ar = AutoReject(
                 n_interpolate=[1, 2, 4],
                 random_state=42,
@@ -66,6 +68,11 @@ def main() -> None:
                 verbose=False)
             ar.fit(epochs)
             reject_log = ar.get_reject_log(epochs)
+            fig, ax = plt.subplots(figsize=[15, 5])
+            print(reject_log.bad_epochs) 
+            # reject_log.plot('horizontal', ax=ax, aspect='auto')
+            # plt.show()
+
             ica.fit(epochs[~reject_log.bad_epochs], decim=3)
             ica.exclude = []
             num_excl = 0
@@ -82,6 +89,7 @@ def main() -> None:
                 z_thresh -= z_step
 
             ica.exclude = eog_indices
+
             print(ica.exclude)
             epochs_postica = ica.apply(epochs.copy())
             ar = AutoReject(
@@ -94,6 +102,7 @@ def main() -> None:
                 n_jobs=-1, 
                 verbose=False)
             epochs_clean = ar.fit_transform(epochs_postica)
+            # epochs_clean.plot(block=True, scalings={"eeg":100e-6}, events=True, n_epochs=8)
             df=epochs_clean.to_data_frame()
             if (all_data is None):
                 all_data = df
