@@ -36,7 +36,7 @@ def main() -> None:
         pass
 
     result = []
-    for i in range(65,70):
+    for i in range(91,100):
         prefix=""
         all_data=None
         if i < 10:
@@ -50,7 +50,7 @@ def main() -> None:
             raw = mne.io.read_raw_edf(f"./data/files/S{prefix}{str(i)}/S{prefix}{str(i)}R{'0' if experiment_no < 10 else ''}{experiment_no}.edf",preload=True)
             configure_channel_location(raw)
             # raw.plot(scalings={"eeg":100e-6}, title = "before frequency highpass and lowpass filtering")
-            raw_filtered:mne.io.Raw = raw.copy().filter(8, 40)
+            raw_filtered:mne.io.Raw = raw.copy().filter(1, 40)
            
             # raw_filtered.plot(scalings={"eeg":100e-6},title="after frequency highpass and lowpass filtering")
             ica = ICA(random_state=42, n_components=0.99)

@@ -45,7 +45,7 @@ def main() -> None:
     'class_weight': ['balanced', None],  # Handle class imbalance
     }
     result = []
-    for i in range(65,70):
+    for i in range(90,100):
         frame = pd.read_csv(f"./mytest-{i}.csv")
         # frame = pd.read_csv(f"./data.csv")
         X = frame[(frame['condition'] == 'T0') | (frame['condition'] == 'T1')]
