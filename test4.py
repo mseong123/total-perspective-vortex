@@ -45,13 +45,14 @@ def main() -> None:
     'class_weight': ['balanced', None],  # Handle class imbalance
     }
     result = []
-    for i in range(20,29):
+    for i in range(29,40):
         frame = pd.read_csv(f"./preprocessed_data_batch/S0{i}R04.csv")
         # frame = pd.read_csv(f"./data.csv")
-        # X = frame[(frame['condition'] == 'T1') | (frame['condition'] == "T2")]
-        target = pd.Series(frame['condition'].values)
-        # X = X.drop(["condition", "Unnamed: 0", "epoch"], axis=1)
-        X = frame.drop(["condition", "Unnamed: 0", "epoch"], axis=1)
+        X = frame[(frame['condition'] == 'T1') | (frame['condition'] == "T2")]
+        # target = pd.Series(frame['condition'].values)
+        target = pd.Series(X['condition'].values)
+        X = X.drop(["condition", "Unnamed: 0", "epoch"], axis=1)
+        # X = frame.drop(["condition", "Unnamed: 0", "epoch"], axis=1)
         scaler = StandardScaler()
         pca = PCA(random_state=42, n_components=65)
         train_data, test_data, train_target, test_target = train_test_split(X, target, test_size=0.3, random_state=42, stratify=target)

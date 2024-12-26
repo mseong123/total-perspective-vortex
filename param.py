@@ -4,40 +4,45 @@
 
 # experiment one - left fist vs right fist
 experiment_one = {
-    'filename':[3,7,11],
+    'file_no':[3,7,11],
     'label':['T1', 'T2'],
 }
 # experiment two - imagine left fist vs right fist
 experiment_two = {
-    'filaname':[4,8,12],
+    'fila_no':[4,8,12],
     'label':['T1', 'T2'],
 }
 
 # experiment three - both fists vs both feet
 experiment_three = {
-    'filename':[5,9,13],
+    'file_no':[5,9,13],
     'label':['T1', 'T2'],
 }
 
 # experiment four - imagine both fists vs both feet
 experiment_four = {
-    'filename':[6,10,14],
+    'file_no':[6,10,14],
     'label':['T1', 'T2'],
 }
  
 # experiment five - rest vs left fist
 experiment_five = {
-    'filename':[3,7,11],
+    'file_no':[3,7,11],
     'label':['T0', 'T1'],
 }
 
 # experiment six - rest vs imagine both feet
 experiment_six = {
-    'filename':[6,10,14],
+    'file_no':[6,10,14],
     'label':['T0', 'T2'],
 }
+# constant params
+RANDOM_STATE = 42
+PREPROCESSED_PATH = './preprocessed_data/'
+DATA_PATH = './data/files/'
+MODEL_PATH = './model'
 
-def get_const(experiment_no:int) -> dict:
+def get_param(experiment_no:int) -> dict:
     '''return dict of paramaters for relevant experiment'''
     if experiment_no == 1:
         return experiment_one
