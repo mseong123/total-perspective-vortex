@@ -9,14 +9,14 @@ from autoreject import AutoReject
 
 def define_args() -> argparse.Namespace:
     """define arguments in command line"""
-    parser = argparse.ArgumentParser(description="A preprocessing script to for eeg data preprocessing.")
+    parser = argparse.ArgumentParser(description="A preprocessing script for eeg data preprocessing.")
     subparsers = parser.add_subparsers(dest="mode", required=True)
     subparser_indiv = subparsers.add_parser("individual", help="option for individual eeg files preprocessing split by subject and experiment")
     subparser_indiv.add_argument("--subject",default=1, type=int, help="subject no. (1 to 109). Default=1")
     subparser_indiv.add_argument("--experiment",default=3, choices=[3,4,5,6],type=int, help="experiment (3 - 6). Default=3")
     subparser_indiv.add_argument("--path",default="./data/files/", type=str, help="Default='./data/files'")
     subparser_indiv.add_argument("--visualize", action='store_true', help="enable graph visualization.")
-    subparser_batch = subparsers.add_parser("batch", help="option for batch eeg files preprocessing split by subject and experiment")
+    subparser_batch = subparsers.add_parser("batch", help="option for batch eeg files preprocessing split by subject and experiment. Processed file includes all 3 runs of experiment.")
     subparser_batch.add_argument("--start",default=1, type=int, help="start of subject no. (1 to 109). Default=1")
     subparser_batch.add_argument("--end",default=109, type=int, help="end of subject no. (1 to 109). Default=109")
     subparser_batch.add_argument("--experiment",default=3, choices=[3,4,5,6], type=int, help="experiment (3 - 6). Default=3")
@@ -45,7 +45,7 @@ def get_ar(epochs:mne.Epochs) -> AutoReject:
     ar = AutoReject(
         n_interpolate=[1, 2, 4],
         random_state=42,
-        picks=mne.pick_types(epochs.info, 
+        picks=mne.pick_types(epochs.info,
                                 eeg=True,
                                 eog=False
         ),
@@ -61,7 +61,7 @@ def get_ica(epochs:mne.Epochs, args:argparse.Namespace)->mne.preprocessing.ICA:
         print("Starting AutoReject fit..")
 
     ar.fit(epochs)
-    
+
     if args.mode == "individual":
         print("AutoReject fit completed")
 
@@ -73,17 +73,17 @@ def get_ica(epochs:mne.Epochs, args:argparse.Namespace)->mne.preprocessing.ICA:
         _, ax = plt.subplots(figsize=[15, 5])
         reject_log.plot('horizontal', ax=ax, aspect='auto')
         plt.show()
-    
+
     if args.mode == "individual":
         print("Starting ICA fit....")
-    
+
     ica.fit(epochs[~reject_log.bad_epochs], decim=3)
-    
+
     if args.mode == "individual":
         print("ICA fit completed")
     if args.mode == "individual" and args.visualize:
         ica.plot_components()
-    ica.exclude:list = []
+    ica.exclude = []
     num_excl:int = 0
     max_ic:int = 2
     z_thresh:float = 3.5
@@ -112,7 +112,7 @@ def indiv_preprocessing(args:argparse.Namespace, path:str)->None:
     else:
         prefix = ""
 
-    file:str = f"S{prefix}{args.subject}R{'0' if args.experiment < 10 else ''}{args.experiment}" 
+    file:str = f"S{prefix}{args.subject}R{'0' if args.experiment < 10 else ''}{args.experiment}"
     raw:mne.io.Raw = mne.io.read_raw_edf(f"{args.path}S{prefix}{args.subject}/{file}.edf",preload=True)
     configure_channel_location(raw)
 
@@ -125,7 +125,7 @@ def indiv_preprocessing(args:argparse.Namespace, path:str)->None:
     if check_visual(args):
         raw_filtered.compute_psd().plot()
         raw_filtered.plot(scalings={"eeg":100e-6}, title=f"Time Series Plot {file} after low and high pass filter", block=True)
- 
+
     epochs = mne.Epochs(raw_filtered, tmin=0, tmax=raw_filtered.annotations.duration.mean(),baseline=(0,0), preload=True)
 
     if check_visual(args):
@@ -135,11 +135,11 @@ def indiv_preprocessing(args:argparse.Namespace, path:str)->None:
     epochs_postica:mne.Epochs = ica.apply(epochs.copy())
 
     if check_visual(args):
-        epochs_postica.plot(scalings={"eeg":100e-6}, n_epochs=7, events=True, title="Epochs Post ICA")  
+        epochs_postica.plot(scalings={"eeg":100e-6}, n_epochs=7, events=True, title="Epochs Post ICA")
     ar:AutoReject = get_ar(epochs_postica)
 
     print("Starting Final AutoReject fit..")
-    ar.fit(epochs_postica.copy()) 
+    ar.fit(epochs_postica.copy())
     print("Final AutoReject fit completed")
 
     reject_log = ar.get_reject_log(epochs_postica)
@@ -153,13 +153,13 @@ def indiv_preprocessing(args:argparse.Namespace, path:str)->None:
     if check_visual(args):
         epochs_clean.plot(scalings={"eeg":100e-6}, block=True, n_epochs=7, events=True, title="Clean Epoch after Final AutoReject and ICA EOG preprocessing")
 
-    print(f"Saving file {file}.csv in path: {path}")
-    epochs_clean.to_data_frame().to_csv(f"{path}{file}.csv")
+    print(f"Saving file {file}_indiv.csv in path: {path}")
+    epochs_clean.to_data_frame().to_csv(f"{path}{file}_indiv.csv")
 
 def batch_preprocessing(args:argparse.Namespace, path:str) -> None:
     '''batch processing'''
     data:pd.DataFrame | None = None
-    for i in range(args.start,args.end + 1):
+    for i in range(args.start, args.end + 1):
         print(f"Preprocessing subject {i}, experiment: {args.experiment}")
         prefix:str = ""
         if i < 10:
@@ -169,8 +169,9 @@ def batch_preprocessing(args:argparse.Namespace, path:str) -> None:
         else:
             prefix = ""
         for j in range(3):
+            print(f"Experiment Run {j + 1}")
             experiment_no:int = args.experiment + j + (3 * j)
-            file:str = f"S{prefix}{i}R{'0' if experiment_no < 10 else ''}{experiment_no}" 
+            file:str = f"S{prefix}{i}R{'0' if experiment_no < 10 else ''}{experiment_no}"
             raw:mne.io.Raw = mne.io.read_raw_edf(f"{args.path}S{prefix}{i}/{file}.edf",preload=True)
             configure_channel_location(raw)
 
@@ -187,8 +188,8 @@ def batch_preprocessing(args:argparse.Namespace, path:str) -> None:
                 data = df
             else:
                 data = pd.concat([data,df])
-        print(f"Saving file {file}.csv in path: {path}")
-        data.to_csv(f"{path}{file}.csv")
+        print(f"Saving file S{prefix}{i}R{'0' if args.experiment < 10 else ''}{args.experiment}.csv in path: {path}")
+        data.to_csv(f"{path}S{prefix}{i}R{'0' if args.experiment < 10 else ''}{args.experiment}.csv")
 
 
 
@@ -203,7 +204,7 @@ def main()-> None:
     except FileExistsError:
         pass
     args:argparse.Namespace = define_args()
-    if (args.mode == "individual"):
+    if args.mode == "individual":
         indiv_preprocessing(args, preproc_indiv_path)
     else:
         batch_preprocessing(args, preproc_batch_path)
