@@ -47,13 +47,14 @@ def define_args()->argparse.Namespace:
 
 def split_data(df:pd.DataFrame, label:list)->tuple:
     '''train test split'''
+    df=df.sample(frac=1, random_state=42)
     X = df[(df['condition'] == label[0]) | (df['condition'] == label[1])]
     y = pd.Series(X['condition'].values)
     X = X.drop(["condition", "Unnamed: 0", "epoch"], axis=1)
 
     # Use stratified to prevent training bias
-    X_train, y_train, X_test, y_test = train_test_split(X, y, test_size=0.3, random_state=RANDOM_STATE, stratify=y)
-    return (X_train, y_train, X_test, y_test)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, stratify=y, test_size=0.30, random_state=RANDOM_STATE)
+    return (X_train, X_test, y_train, y_test, X, y )
 
 def define_grid()->dict:
     '''return param_grid for RandomizedSearchCV'''
@@ -136,16 +137,20 @@ def predict(args:argparse.Namespace) -> None:
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
         return
-    X_train, X_test, y_train , y_test = split_data(df, param['label'])
-    print("df", df)
-    print("X_train", X_train)
+    X_train, X_test, y_train, y_test, X, y = split_data(df, param['label'])
 
-    print("X_test", X_test)
-    print("y_train", y_train)
-    print("y_test", y_test)
-    print("score", grid.score(X_test, y_test))
-
-    print("normal score", grid.cv_results_)
+    print("predict", grid.predict(X))
+    T1 = 0
+    T2 = 0
+    for i in grid.predict(X):
+        if i == "T1":
+            T1+=1
+        else:
+            T2+=1
+    print("t1", T1)
+    print("t2", T2)
+     
+    print("score", grid.score(X, y))
     
 
 
