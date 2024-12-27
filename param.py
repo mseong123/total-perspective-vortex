@@ -41,6 +41,7 @@ RANDOM_STATE = 42
 PREPROCESSED_PATH = './preprocessed_data/'
 DATA_PATH = './data/files/'
 MODEL_PATH = './model'
+TEST_SIZE = 0.3
 
 def get_param(experiment_no:int) -> dict:
     '''return dict of paramaters for relevant experiment'''
@@ -56,3 +57,12 @@ def get_param(experiment_no:int) -> dict:
         return experiment_five
     elif experiment_no == 6:
         return experiment_six
+
+
+def get_prefix(i:int)->str:
+    if i < 10:
+        return "00"
+    elif i < 100:
+        return "0"
+    else:
+        return ""
