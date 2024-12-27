@@ -1,2 +1,4 @@
 data/
 preprocessed_data/
+memcache/
+model/
