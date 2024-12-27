@@ -10,18 +10,25 @@ from param import RANDOM_STATE, get_param, PREPROCESSED_PATH, DATA_PATH
 
 def define_args() -> argparse.Namespace:
     """define arguments in command line"""
-    parser = argparse.ArgumentParser(description="A preprocessing script for eeg data preprocessing.")
-    parser.add_argument("--start",default=1, type=int, help="start of subject no. (1 to 109). Default=1")
-    parser.add_argument("--end",default=109, type=int, help="end of subject no. (1 to 109). Default=109")
-    parser.add_argument("--experiment",default=1, choices=[1,2,3,4,5,6], type=int, help=\
-            "experiment 1: left first vs right fist\n \
-            experiment 2: imagine left fist vs right fist\n \
-            experiment 3: both fists vs both feet\n \
-            experiment 4: imagine both fists vs both feet\n \
-            experiment 5: rest vs left fist\n \
-            experiment 6: rest vs imagine both feet\n \
-            Default=1")
-    parser.add_argument("--visualize", action='store_true', help="enable graph visualization.")
+    parser = argparse.ArgumentParser(description="A preprocessing script for eeg data preprocessing.", formatter_class=argparse.RawTextHelpFormatter)
+    parser.add_argument("--start",default=1, type=int, help=(
+        "start of subject no. (1 to 109)\n"
+        "Default=1")
+    )
+    parser.add_argument("--end",default=109, type=int, help=(
+        "end of subject no. (1 to 109)\n"
+        "Default=109")
+    )
+    parser.add_argument("--experiment",default=1, choices=[1,2,3,4,5,6], type=int, help=(
+            "experiment 1: left first vs right fist\n"
+            "experiment 2: imagine left fist vs right fist\n"
+            "experiment 3: both fists vs both feet\n"
+            "experiment 4: imagine both fists vs both feet\n"
+            "experiment 5: rest vs left fist\n"
+            "experiment 6: rest vs imagine both feet\n"
+            "Default=1")
+            )
+    parser.add_argument("--visualize", action='store_true', help="enable eeg data visualization.")
     return parser.parse_args()
 
 def configure_channel_location(raw:mne.io.Raw) -> None:
@@ -51,32 +58,25 @@ def get_ar(epochs:mne.Epochs) -> AutoReject:
     return ar
 
 def get_ica(epochs:mne.Epochs, args:argparse.Namespace)->mne.preprocessing.ICA:
-    '''fit, find_bads_eog and return ICA'''
+    '''fit ICA, find_bads_eog and return ICA'''
     ica:mne.preprocessing.ICA = mne.preprocessing.ICA(random_state=RANDOM_STATE, n_components=0.99)
     ar:AutoReject = get_ar(epochs)
-    if args.visualize:
-        print("Starting AutoReject fit..")
-
+    print("Starting AutoReject fit..")
     ar.fit(epochs)
-
-    if args.visualize:
-        print("AutoReject fit completed")
+    print("AutoReject fit completed")
 
     reject_log = ar.get_reject_log(epochs)
+    print("Bad epochs from AutoReject:\n", reject_log.bad_epochs)
 
     if args.visualize:
-        print("Bad epochs from AutoReject:\n", reject_log.bad_epochs)
         _, ax = plt.subplots(figsize=[15, 5])
         reject_log.plot('horizontal', ax=ax, aspect='auto')
         plt.show()
 
-    if args.visualize:
-        print("Starting ICA fit....")
-
+    print("Starting ICA fit....")
     ica.fit(epochs[~reject_log.bad_epochs], decim=3)
-
-    if args.visualize:
-        print("ICA fit completed")
+    print("ICA fit completed")
+    
     if args.visualize:
         ica.plot_components()
     ica.exclude = []
@@ -94,66 +94,11 @@ def get_ica(epochs:mne.Epochs, args:argparse.Namespace)->mne.preprocessing.ICA:
         z_thresh -= z_step
 
     ica.exclude = eog_indices
-    if args.visualize:
-        print("EOG components excluded:\n", ica.exclude)
+    print("EOG components excluded:\n", ica.exclude)
     return ica
-
-def indiv_preprocessing(args:argparse.Namespace)->None:
-    '''indiv processing'''
-    prefix:str = ""
-    if args.subject < 10:
-        prefix = "00"
-    elif args.subject < 100:
-        prefix = "0"
-    else:
-        prefix = ""
-
-    file:str = f"S{prefix}{args.subject}R{'0' if args.experiment < 10 else ''}{args.experiment}"
-    raw:mne.io.Raw = mne.io.read_raw_edf(f"{args.path}S{prefix}{args.subject}/{file}.edf",preload=True)
-    configure_channel_location(raw)
-
-    if check_visual(args):
-        raw.plot(scalings={"eeg":100e-6}, title=f"Time Series Plot {file} before low and high pass filter")
-        raw.compute_psd().plot()
-
-    raw_filtered:mne.io.Raw = raw.copy().filter(1,40)
-
-    if check_visual(args):
-        raw_filtered.compute_psd().plot()
-        raw_filtered.plot(scalings={"eeg":100e-6}, title=f"Time Series Plot {file} after low and high pass filter", block=True)
-
-    epochs = mne.Epochs(raw_filtered, tmin=0, tmax=raw_filtered.annotations.duration.mean(),baseline=(0,0), preload=True)
-
-    if check_visual(args):
-        epochs.plot(scalings={"eeg":100e-6}, n_epochs=7, events=True, title="Epoch before preprocessing")
-
-    ica:mne.preprocessing.ICA = get_ica(epochs, args)
-    epochs_postica:mne.Epochs = ica.apply(epochs.copy())
-
-    if check_visual(args):
-        epochs_postica.plot(scalings={"eeg":100e-6}, n_epochs=7, events=True, title="Epochs Post ICA")
-    ar:AutoReject = get_ar(epochs_postica)
-
-    print("Starting Final AutoReject fit..")
-    ar.fit(epochs_postica.copy())
-    print("Final AutoReject fit completed")
-
-    reject_log = ar.get_reject_log(epochs_postica)
-    print("Bad epochs from Final AutoReject:\n", reject_log.bad_epochs)
-    if check_visual(args):
-        _, ax = plt.subplots(figsize=[15, 5])
-        reject_log.plot('horizontal', ax=ax, aspect='auto')
-        plt.show()
-
-    epochs_clean:mne.Epochs = ar.transform(epochs_postica.copy())
-    if check_visual(args):
-        epochs_clean.plot(scalings={"eeg":100e-6}, block=True, n_epochs=7, events=True, title="Clean Epoch after Final AutoReject and ICA EOG preprocessing")
-
-    
-    
     
 def preprocessing(args:argparse.Namespace, param:dict) -> None:
-    '''Preprocessing and save DataFrame'''
+    '''Preprocessing of eeg data and save result as pandas DataFrame'''
     data:pd.DataFrame | None = None
     for i in range(args.start, args.end + 1):
         print(f"Preprocessing subject {i}, experiment: {args.experiment}")
@@ -183,31 +128,30 @@ def preprocessing(args:argparse.Namespace, param:dict) -> None:
             epochs:mne.Epochs = mne.Epochs(raw_filtered, tmin=0, tmax=raw_filtered.annotations.duration.mean(),baseline=(0,0), preload=True)
 
             if args.visualize:
-                epochs.plot(scalings={"eeg":100e-6}, n_epochs=7, events=True, title="Epoch before preprocessing")
+                epochs.plot(scalings={"eeg":100e-6}, n_epochs=7, events=True, title="Epoch Time Series Plot before preprocessing")
 
             ica:mne.preprocessing.ICA = get_ica(epochs, args)
             epochs_postica:mne.Epochs = ica.apply(epochs.copy())
 
             if args.visualize:
-                epochs_postica.plot(scalings={"eeg":100e-6}, n_epochs=7, events=True, title="Epochs Post ICA")
+                epochs_postica.plot(scalings={"eeg":100e-6}, n_epochs=7, events=True, title="Epoch Time Series Plot Post ICA")
 
             ar:AutoReject = get_ar(epochs_postica)
 
-            if args.visualize:
-                print("Starting Final AutoReject fit..")
-                ar.fit(epochs_postica.copy())
-                print("Final AutoReject fit completed")
-                reject_log = ar.get_reject_log(epochs_postica)
-                print("Bad epochs from Final AutoReject:\n", reject_log.bad_epochs)
+            print("Starting Final AutoReject fit..")
+            ar.fit(epochs_postica.copy())
+            print("Final AutoReject fit completed")
 
+            reject_log = ar.get_reject_log(epochs_postica)
+            print("Bad epochs from Final AutoReject:\n", reject_log.bad_epochs)
+
+            if args.visualize:
                 _, ax = plt.subplots(figsize=[15, 5])
                 reject_log.plot('horizontal', ax=ax, aspect='auto')
                 plt.show()
 
-                epochs_clean:mne.Epochs = ar.transform(epochs_postica.copy())
-            else:
-                epochs_clean = ar.fit_transform(epochs_postica.copy())
-            
+            epochs_clean:mne.Epochs = ar.transform(epochs_postica.copy())
+
             if args.visualize:
                 epochs_clean.plot(scalings={"eeg":100e-6}, block=True, n_epochs=7, events=True, title="Clean Epoch after Final AutoReject and ICA EOG preprocessing")
 
@@ -217,7 +161,7 @@ def preprocessing(args:argparse.Namespace, param:dict) -> None:
             else:
                 data = pd.concat([data,df])
         print(f"Saving file S{prefix}{i}E{args.experiment}.csv in {PREPROCESSED_PATH}")
-        data.to_csv(f"{DATA_PATH}S{prefix}{i}E{args.experiment}.csv")
+        data.to_csv(f"{PREPROCESSED_PATH}S{prefix}{i}E{args.experiment}.csv")
 
 
 

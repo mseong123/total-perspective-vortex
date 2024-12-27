@@ -45,8 +45,8 @@ def main() -> None:
     'class_weight': ['balanced', None],  # Handle class imbalance
     }
     result = []
-    for i in range(29,40):
-        frame = pd.read_csv(f"./preprocessed_data_batch/S0{i}R04.csv")
+    for i in range(1,3):
+        frame = pd.read_csv(f"./preprocessed_data/S00{i}E1.csv")
         # frame = pd.read_csv(f"./data.csv")
         X = frame[(frame['condition'] == 'T1') | (frame['condition'] == "T2")]
         # target = pd.Series(frame['condition'].values)
