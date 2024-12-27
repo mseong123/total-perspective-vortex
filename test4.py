@@ -33,10 +33,6 @@ def configure_channel_location(raw:mne.io.Raw) -> None:
 
 def main() -> None:
     mne.set_log_level(verbose="CRITICAL")
-    try:
-        os.mkdir("plot/")
-    except FileExistsError:
-        pass
     param_grid = {
     'C': [0.1, 1, 10],  # Regularization strength
     'penalty': ['l1', 'l2', 'elasticnet'],  # Regularization type
