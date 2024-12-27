@@ -109,8 +109,8 @@ def get_ica(epochs:mne.Epochs, args:argparse.Namespace)->mne.preprocessing.ICA:
 
 def preprocessing(args:argparse.Namespace, param:dict) -> None:
     '''Preprocessing of eeg data and save result as pandas DataFrame'''
-    data:pd.DataFrame | None = None
     for i in range(args.start, args.end + 1):
+        data:pd.DataFrame | None = None
         print(f"Preprocessing subject {i}, experiment: {args.experiment}")
         start_time = time.time()
         prefix:str = get_prefix(i) 
@@ -191,6 +191,7 @@ def preprocessing(args:argparse.Namespace, param:dict) -> None:
                 data = pd.concat([data,df])
         print(f"Saving file S{prefix}{i}E{args.experiment}.csv in {PREPROCESSED_PATH}\n")
         print(f"Time Elapsed:{(time.time() - start_time):.0f} seconds\n")
+        print('DATA',data.shape)
         data.to_csv(f"{PREPROCESSED_PATH}S{prefix}{i}E{args.experiment}.csv")
 
 

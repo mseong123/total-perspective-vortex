@@ -59,7 +59,7 @@ def define_grid()->dict:
     '''return param_grid for RandomizedSearchCV'''
     return {
         "pca__n_components": [40,65],
-        "clf__alpha":[0.3,0.5],
+        "clf__alpha":[0.1,0.3],
     }
  
 def define_pipeline(args:argparse.Namespace) ->Pipeline:
@@ -83,8 +83,8 @@ def train(args:argparse.Namespace)-> None:
         pass
 
     param:dict = get_param(args.experiment)
-    # reading preprocessed file as per args params
     prefix:str = get_prefix(args.subject)
+    # reading preprocessed file as per args params
     try:
         df:pd.DataFrame = pd.read_csv(f"{PREPROCESSED_PATH}S{prefix}{args.subject}E{args.experiment}.csv")
     except Exception as e:
@@ -109,19 +109,44 @@ def train(args:argparse.Namespace)-> None:
     print(cv_score)
     # print cross_val_score
     print(f"cross_val_score: {np.array(cv_score).mean():.4f}")
-    # save estimator 
-    print(f"saving estimator in {MODEL_PATH}")
-    with open(f"{MODEL_PATH}S{prefix}{args.subject}E{args.experiment}.pkl", "wb") as file:
+    # save estimator
+    filename:str = f"S{prefix}{args.subject}E{args.experiment}.pkl" 
+    print(f"saving estimator {filename} in {MODEL_PATH}")
+    with open(f"{MODEL_PATH}{filename}", "wb") as file:
         pickle.dump(grid, file)
     
 
 
 def predict(args:argparse.Namespace) -> None:
     '''predict using existing pre trained model and streaming test data'''
-    if os.path.exists():
-        print("The file exists.")
+    prefix:str = get_prefix(args.subject)
+    filePATH:str = f"{MODEL_PATH}S{prefix}{args.subject}E{args.experiment}.pkl"
+    
+    if os.path.exists(filePATH):
+        with open(filePATH,"rb") as file:
+            grid = pickle.load(file)
     else:
-        print("The file does not exist.")
+        print("Model does not exist. Please train specific model first")
+        return
+    param:dict = get_param(args.experiment)
+    prefix:str = get_prefix(args.subject)
+    # reading preprocessed file as per args params
+    try:
+        df:pd.DataFrame = pd.read_csv(f"{PREPROCESSED_PATH}S{prefix}{args.subject}E{args.experiment}.csv")
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
+        return
+    X_train, X_test, y_train , y_test = split_data(df, param['label'])
+    print("df", df)
+    print("X_train", X_train)
+
+    print("X_test", X_test)
+    print("y_train", y_train)
+    print("y_test", y_test)
+    print("score", grid.score(X_test, y_test))
+
+    print("normal score", grid.cv_results_)
+    
 
 
 def train_all(args:argparse.Namespace) -> None:
@@ -129,7 +154,7 @@ def train_all(args:argparse.Namespace) -> None:
     pass
 
 def main():
-    '''main script'''
+    '''main script for 1) train, 2) predict and 3) train all by subject and experiments'''
     args:argparse.Namespace = define_args()
     if args.mode == 'train':
         train(args)
@@ -141,7 +166,7 @@ def main():
             print("memory cache cleared")
         except Exception as e:
             print(f"Error occured :{e}")
-            return 
+            return
     else:
         train_all(args)
 
