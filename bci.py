@@ -47,14 +47,14 @@ def define_args()->argparse.Namespace:
 
 def split_data(df:pd.DataFrame, label:list)->tuple:
     '''train test split'''
-    df=df.sample(frac=1, random_state=42)
     X = df[(df['condition'] == label[0]) | (df['condition'] == label[1])]
-    y = pd.Series(X['condition'].values)
+    y = X['condition']
+
     X = X.drop(["condition", "Unnamed: 0", "epoch"], axis=1)
 
     # Use stratified to prevent training bias
-    X_train, X_test, y_train, y_test = train_test_split(X, y, stratify=y, test_size=0.30, random_state=RANDOM_STATE)
-    return (X_train, X_test, y_train, y_test, X, y )
+    X_train, X_test, y_train, y_test = train_test_split(X, y, stratify=y, test_size=0.30,random_state=RANDOM_STATE)
+    return (X_train, X_test, y_train, y_test)
 
 def define_grid()->dict:
     '''return param_grid for RandomizedSearchCV'''
@@ -91,7 +91,7 @@ def train(args:argparse.Namespace)-> None:
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
         return
-    X_train, _, y_train, _ = split_data(df, param['label'])
+    X_train, _, y_train, _= split_data(df, param['label'])
     cv:int = 5
     # combining gridsearch of best param together with cross fold val. Hence the amount of fitting is no. of combination
     # of parameters x Kfold. As below it's params(2x2) x cv(5) = 20. Hence train model 10 times. 
@@ -137,20 +137,8 @@ def predict(args:argparse.Namespace) -> None:
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
         return
-    X_train, X_test, y_train, y_test, X, y = split_data(df, param['label'])
-
-    print("predict", grid.predict(X))
-    T1 = 0
-    T2 = 0
-    for i in grid.predict(X):
-        if i == "T1":
-            T1+=1
-        else:
-            T2+=1
-    print("t1", T1)
-    print("t2", T2)
-     
-    print("score", grid.score(X, y))
+    _, X_test, _, y_test = split_data(df, param['label']) 
+    print("score", grid.score(X_test, y_test))
     
 
 
