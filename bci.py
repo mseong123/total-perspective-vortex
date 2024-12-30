@@ -94,6 +94,7 @@ def train(experiment:int, subject:int, args:argparse.Namespace, train_all:bool, 
         df:pd.DataFrame = pd.read_csv(f"{PREPROCESSED_PATH}S{prefix}{subject}E{experiment}.csv")
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
+        print("exiting..")
         exit()
     X_train, X_test, y_train, y_test= split_data(df, param['label'])
     cv:int = 5
@@ -133,7 +134,7 @@ def train(experiment:int, subject:int, args:argparse.Namespace, train_all:bool, 
 
 def stream_prediction_data(X_test:pd.DataFrame, y_test:pd.DataFrame, grid:GridSearchCV)->tuple:
     # Iterate over both DataFrame and Series in batches
-
+    accuracy_list:list = []
     for start in range(0, len(X_test), BATCH_SIZE):
         # Get a batch from X_test and y_test
         end = min(start + BATCH_SIZE, len(X_test))
@@ -143,8 +144,10 @@ def stream_prediction_data(X_test:pd.DataFrame, y_test:pd.DataFrame, grid:GridSe
         accuracy_score = grid.score(X_batch, y_batch)
         time.sleep(2)
         print(f"Score on test batch {start} to {end}: {accuracy_score}")
+        accuracy_list.append(accuracy_score)
         print(f"Prediction for test batch {start} to {end} = {prediction}")
-
+    print(f"\n--------------------------------------------------")
+    print(f"Mean accuracy:{np.array(accuracy_list).mean()}")
 
 def predict(args:argparse.Namespace, streaming:bool) -> None:
     '''predict using existing pre trained model and streaming test data'''
@@ -156,7 +159,8 @@ def predict(args:argparse.Namespace, streaming:bool) -> None:
             grid = pickle.load(file)
     else:
         print("Model does not exist. Please train specific model first")
-        return
+        print("exiting..")
+        exit()
     param:dict = get_param(args.experiment)
     prefix:str = get_prefix(args.subject)
     # reading preprocessed file as per args params
@@ -164,7 +168,8 @@ def predict(args:argparse.Namespace, streaming:bool) -> None:
         df:pd.DataFrame = pd.read_csv(f"{PREPROCESSED_PATH}S{prefix}{args.subject}E{args.experiment}.csv")
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
-        return
+        print("exiting..")
+        exit()
     _, X_test, _, y_test = split_data(df, param['label'])
     if streaming:
         stream_prediction_data(X_test, y_test, grid)
@@ -187,17 +192,17 @@ def main():
             return
     else:
         overall_score:list = []
-        for i in range(6):
+        for i in range(1):
             indiv_score:list = []
-            for j in range(109):
+            for j in range(2):
                 train(i + 1, j + 1, args, True, indiv_score)
             mean_score:float = np.array(indiv_score).mean()
             overall_score.append(mean_score)
             indiv_score = []
-        print("Mean accuracy of the six different experiments for all 109 subjects:")
+        print("\nMean accuracy of the six different experiments for all 109 subjects:")
         for i, score in enumerate(overall_score):
-            print(f"experiment {i}:        accuracy = {score}")
-        print(f"Mean accuracy of 6 experiments: {np.array(overall_score).mean()}")
+            print(f"experiment {i + 1}:        accuracy = {score}")
+        print(f"Mean accuracy of {i + 1} experiments: {np.array(overall_score).mean()}")
 
 
 
