@@ -9,7 +9,7 @@ experiment_one = {
 }
 # experiment two - imagine left fist vs right fist
 experiment_two = {
-    'fila_no':[4, 8, 12],
+    'file_no':[4, 8, 12],
     'label':['T1', 'T2'],
 }
 

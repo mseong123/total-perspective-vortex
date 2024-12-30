@@ -185,7 +185,6 @@ def preprocessing(args:argparse.Namespace, param:dict) -> None:
                 epochs_clean.plot(scalings={"eeg":100e-6}, block=True, n_epochs=7, events=True, title="Clean Epoch after Final AutoReject and ICA EOG preprocessing")
 
             df:pd.DataFrame = epochs_clean.to_data_frame()
-            df['epoch'] = df['epoch'] + (j * 30)
             if data is None:
                 data = df
             else:

@@ -10,9 +10,11 @@ import numpy as np
 from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import Pipeline
 from sklearn.decomposition import PCA
+from sklearn.neural_network import MLPClassifier
 from sklearn.model_selection import GridSearchCV, train_test_split
 from param import get_param,get_prefix, PREPROCESSED_PATH, \
     RANDOM_STATE, TEST_SIZE, MEMORY_CACHE_PATH, MODEL_PATH, \
+    BATCH_SIZE
 
 
 
@@ -45,10 +47,11 @@ def define_args()->argparse.Namespace:
     )
     subparser_predict.add_argument("--subject", type=int, default=1, help="subject no. (1 to 109). Default = 1")
     subparser_clear = subparser.add_parser("clear")
+    parser.add_argument("--verbose", action='store_true', help="Display additional info on training in terminal")
     return parser.parse_args()
 
 def split_data(df:pd.DataFrame, label:list)->tuple:
-    '''train  split'''
+    '''train test split and process dataframe'''
     X = df[(df['condition'] == label[0]) | (df['condition'] == label[1])]
     y = X['condition']
     X = X.drop(["condition", "Unnamed: 0", "epoch"], axis=1) 
@@ -61,7 +64,7 @@ def define_grid()->dict:
     '''return param_grid for RandomizedSearchCV'''
     return {
         "pca__n_components": [45, 65],
-        "clf__alpha":[0.3, 0.1],
+        "clf__alpha":[0.1, 0.3],
     }
  
 def define_pipeline(args:argparse.Namespace) ->Pipeline:
@@ -77,44 +80,56 @@ def define_pipeline(args:argparse.Namespace) ->Pipeline:
         ("clf", clf)
         ], memory=MEMORY_CACHE_PATH, verbose=(True if args.verbose else False))
 
-def train(args:argparse.Namespace)-> None:
+def train(experiment:int, subject:int, args:argparse.Namespace, train_all:bool, indiv_score:list | None)-> None:
     '''train using pipeline using args parameter'''
     try:
         os.mkdir(MODEL_PATH)
     except FileExistsError:
         pass
 
-    param:dict = get_param(args.experiment)
-    prefix:str = get_prefix(args.subject)
+    param:dict = get_param(experiment)
+    prefix:str = get_prefix(subject)
     # reading preprocessed file as per args params
     try:
-        df:pd.DataFrame = pd.read_csv(f"{PREPROCESSED_PATH}S{prefix}{args.subject}E{args.experiment}.csv")
+        df:pd.DataFrame = pd.read_csv(f"{PREPROCESSED_PATH}S{prefix}{subject}E{experiment}.csv")
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
-        return
-    X_train, _, y_train, _= split_data(df, param['label'])
+        exit()
+    X_train, X_test, y_train, y_test= split_data(df, param['label'])
     cv:int = 5
     # combining gridsearch of best param together with cross fold val. Hence the amount of fitting is no. of combination
     # of parameters x Kfold. As below it's params(2x2) x cv(5) = 20. Hence train model 10 times. 
     grid = GridSearchCV(define_pipeline(args), define_grid(), n_jobs=-1, cv=cv, verbose=(4 if args.verbose else 0))
     grid.fit(X_train, y_train)
 
+   
+    filename:str = f"S{prefix}{subject}E{experiment}.pkl" 
+    
+    # INDIVIDUAL TRAINING
+    # ----------------------------------------------------------
     # training results included in grid.cv_results_
-    result = grid.cv_results_
-    # parsing cross validation score across the folds. Use index of best params combination - rank 1 in key('rank_test_score') 
-    # and use that to get score of each fold -> key(ie 'split0', 'split1').  
-    split:list = []
-    for i in range(cv):
-        split.append(f"split{i}")
-    cv_score:list = [round(float(result[value + '_test_score'][result['rank_test_score'].tolist().index(1)]),4) for value in split]
-    print(cv_score)
-    print(f"cross_val_score: {np.array(cv_score).mean():.4f}")
+    if train_all == False:
+        result = grid.cv_results_
+        # parsing cross validation score across the folds. Use index of best params combination - rank 1 in key('rank_test_score') 
+        # and use that to get score of each fold -> key(ie 'split0', 'split1'). 
+        split:list = []
+        for i in range(cv):
+            split.append(f"split{i}")
+        cv_score:list = [round(float(result[value + '_test_score'][result['rank_test_score'].tolist().index(1)]),4) for value in split]
+        print(cv_score)
+        print(f"cross_val_score: {np.array(cv_score).mean():.4f}")
+        print(f"saving estimator {filename} in {MODEL_PATH}")
+    # TRAIN ALL
+    # -------------------------------------------------------------
+    else:
+        score:float = grid.score(X_test, y_test)
+        print(f"experiment {experiment}: subject {subject}: accuracy = {score}")
+        indiv_score.append(score)
 
     # save estimator
-    filename:str = f"S{prefix}{args.subject}E{args.experiment}.pkl" 
-    print(f"saving estimator {filename} in {MODEL_PATH}")
     with open(f"{MODEL_PATH}{filename}", "wb") as file:
         pickle.dump(grid, file)
+    
 
 def stream_prediction_data(X_test:pd.DataFrame, y_test:pd.DataFrame, grid:GridSearchCV)->tuple:
     # Iterate over both DataFrame and Series in batches
@@ -153,18 +168,14 @@ def predict(args:argparse.Namespace, streaming:bool) -> None:
     _, X_test, _, y_test = split_data(df, param['label'])
     if streaming:
         stream_prediction_data(X_test, y_test, grid)
-    
+ 
 
-
-def train_all(args:argparse.Namespace) -> None:
-    '''train_all using pipeline'''
-    pass
 
 def main():
     '''main script for 1) train, 2) predict and 3) train all by subject and experiments'''
     args:argparse.Namespace = define_args()
     if args.mode == 'train':
-        train(args)
+        train(args.experiment, args.subject, args, False, None)
     elif args.mode == 'predict':
         predict(args, True)
     elif args.mode == 'clear':
@@ -175,7 +186,18 @@ def main():
             print(f"Error occured :{e}")
             return
     else:
-        train_all(args)
+        overall_score:list = []
+        for i in range(6):
+            indiv_score:list = []
+            for j in range(109):
+                train(i + 1, j + 1, args, True, indiv_score)
+            mean_score:float = np.array(indiv_score).mean()
+            overall_score.append(mean_score)
+            indiv_score = []
+        print("Mean accuracy of the six different experiments for all 109 subjects:")
+        for i, score in enumerate(overall_score):
+            print(f"experiment {i}:        accuracy = {score}")
+        print(f"Mean accuracy of 6 experiments: {np.array(overall_score).mean()}")
 
 
 
