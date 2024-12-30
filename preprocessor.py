@@ -146,7 +146,7 @@ def preprocessing(args:argparse.Namespace, param:dict) -> None:
             # as any ERP onset related artifacts for specific channels will be reflected across the samples and will be 
             # picked up by the models. Also take duration of entire ERP event time series instead of a sample of it (ie 1 second vs 4.15 seconds)
             epochs:mne.Epochs = mne.Epochs(raw_filtered, tmin=0, tmax=raw_filtered.annotations.duration.mean(),baseline=(0,0), preload=True)
-
+            
             if args.visualize:
                 # Plot can be adjusted to show number of epochs, but in general should look the same as raw_filtered.plot() 
                 # above although more concise
@@ -185,13 +185,14 @@ def preprocessing(args:argparse.Namespace, param:dict) -> None:
                 epochs_clean.plot(scalings={"eeg":100e-6}, block=True, n_epochs=7, events=True, title="Clean Epoch after Final AutoReject and ICA EOG preprocessing")
 
             df:pd.DataFrame = epochs_clean.to_data_frame()
+            df['epoch'] = df['epoch'] + (j * 30)
             if data is None:
                 data = df
             else:
                 data = pd.concat([data,df])
         print(f"Saving file S{prefix}{i}E{args.experiment}.csv in {PREPROCESSED_PATH}\n")
         print(f"Time Elapsed:{(time.time() - start_time):.0f} seconds\n")
-        print('DATA',data.shape)
+
         data.to_csv(f"{PREPROCESSED_PATH}S{prefix}{i}E{args.experiment}.csv")
 
 

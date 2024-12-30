@@ -4,14 +4,16 @@ import argparse
 import os
 import shutil
 import pickle
+import time
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import Pipeline
 from sklearn.decomposition import PCA
 from sklearn.model_selection import GridSearchCV, train_test_split
-from sklearn.neural_network import MLPClassifier
-from param import get_param,get_prefix, PREPROCESSED_PATH, RANDOM_STATE, TEST_SIZE, MEMORY_CACHE_PATH, MODEL_PATH
+from param import get_param,get_prefix, PREPROCESSED_PATH, \
+    RANDOM_STATE, TEST_SIZE, MEMORY_CACHE_PATH, MODEL_PATH, \
+
 
 
 def define_args()->argparse.Namespace:
@@ -46,21 +48,20 @@ def define_args()->argparse.Namespace:
     return parser.parse_args()
 
 def split_data(df:pd.DataFrame, label:list)->tuple:
-    '''train test split'''
+    '''train  split'''
     X = df[(df['condition'] == label[0]) | (df['condition'] == label[1])]
     y = X['condition']
-
-    X = X.drop(["condition", "Unnamed: 0", "epoch"], axis=1)
-
-    # Use stratified to prevent training bias
+    X = X.drop(["condition", "Unnamed: 0", "epoch"], axis=1) 
     X_train, X_test, y_train, y_test = train_test_split(X, y, stratify=y, test_size=0.30,random_state=RANDOM_STATE)
+
     return (X_train, X_test, y_train, y_test)
+
 
 def define_grid()->dict:
     '''return param_grid for RandomizedSearchCV'''
     return {
-        "pca__n_components": [40,65],
-        "clf__alpha":[0.1,0.3],
+        "pca__n_components": [45, 65],
+        "clf__alpha":[0.3, 0.1],
     }
  
 def define_pipeline(args:argparse.Namespace) ->Pipeline:
@@ -69,7 +70,7 @@ def define_pipeline(args:argparse.Namespace) ->Pipeline:
         os.mkdir(MEMORY_CACHE_PATH)
     except FileExistsError:
         pass
-    clf = MLPClassifier(max_iter=1000, random_state=RANDOM_STATE)
+    clf = MLPClassifier(max_iter=1000,hidden_layer_sizes=(40,),random_state=RANDOM_STATE, early_stopping=True, verbose=(True if args.verbose else False))
     return Pipeline([
         ('scaler', StandardScaler()),
         ('pca',PCA()),
@@ -106,19 +107,31 @@ def train(args:argparse.Namespace)-> None:
     for i in range(cv):
         split.append(f"split{i}")
     cv_score:list = [round(float(result[value + '_test_score'][result['rank_test_score'].tolist().index(1)]),4) for value in split]
-    # print score of each fold
     print(cv_score)
-    # print cross_val_score
     print(f"cross_val_score: {np.array(cv_score).mean():.4f}")
+
     # save estimator
     filename:str = f"S{prefix}{args.subject}E{args.experiment}.pkl" 
     print(f"saving estimator {filename} in {MODEL_PATH}")
     with open(f"{MODEL_PATH}{filename}", "wb") as file:
         pickle.dump(grid, file)
-    
+
+def stream_prediction_data(X_test:pd.DataFrame, y_test:pd.DataFrame, grid:GridSearchCV)->tuple:
+    # Iterate over both DataFrame and Series in batches
+
+    for start in range(0, len(X_test), BATCH_SIZE):
+        # Get a batch from X_test and y_test
+        end = min(start + BATCH_SIZE, len(X_test))
+        X_batch = X_test.iloc[start:end]
+        y_batch = y_test.iloc[start:end]
+        prediction = grid.predict(X_batch)
+        accuracy_score = grid.score(X_batch, y_batch)
+        time.sleep(2)
+        print(f"Score on test batch {start} to {end}: {accuracy_score}")
+        print(f"Prediction for test batch {start} to {end} = {prediction}")
 
 
-def predict(args:argparse.Namespace) -> None:
+def predict(args:argparse.Namespace, streaming:bool) -> None:
     '''predict using existing pre trained model and streaming test data'''
     prefix:str = get_prefix(args.subject)
     filePATH:str = f"{MODEL_PATH}S{prefix}{args.subject}E{args.experiment}.pkl"
@@ -137,8 +150,9 @@ def predict(args:argparse.Namespace) -> None:
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
         return
-    _, X_test, _, y_test = split_data(df, param['label']) 
-    print("score", grid.score(X_test, y_test))
+    _, X_test, _, y_test = split_data(df, param['label'])
+    if streaming:
+        stream_prediction_data(X_test, y_test, grid)
     
 
 
@@ -152,7 +166,7 @@ def main():
     if args.mode == 'train':
         train(args)
     elif args.mode == 'predict':
-        predict(args)
+        predict(args, True)
     elif args.mode == 'clear':
         try:
             shutil.rmtree(MEMORY_CACHE_PATH)
