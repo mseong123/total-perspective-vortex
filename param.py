@@ -42,7 +42,6 @@ PREPROCESSED_PATH = './preprocessed_data/'
 DATA_PATH = './data/files/'
 MODEL_PATH = './model/'
 MEMORY_CACHE_PATH = './memcache'
-TEST_SIZE = 0.3
 BATCH_SIZE = 1000
 
 def get_param(experiment_no:int) -> dict:
