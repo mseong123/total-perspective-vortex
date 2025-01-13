@@ -11,11 +11,12 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import Pipeline
 # from sklearn.decomposition import PCA
 from sklearn.neural_network import MLPClassifier
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.model_selection import GridSearchCV, train_test_split
+from sklearn.tree import DecisionTreeClassifier, plot_tree
+from sklearn.model_selection import GridSearchCV, train_test_split, GroupKFold, StratifiedGroupKFold, GroupShuffleSplit
 from param import get_param,get_prefix, PREPROCESSED_PATH, \
     RANDOM_STATE, MEMORY_CACHE_PATH, MODEL_PATH, \
     BATCH_SIZE
+import matplotlib.pyplot as plt
 from my_pca import PCA
 
 
@@ -62,9 +63,30 @@ def split_data(df:pd.DataFrame, label:list)->tuple:
     '''train test split and process dataframe'''
     X = df[(df['condition'] == label[0]) | (df['condition'] == label[1])]
     y = X['condition']
-    X = X.drop(["condition", "Unnamed: 0", "epoch"], axis=1)
-    X_train, X_test, y_train, y_test = \
-        train_test_split(X, y, stratify=y, test_size=0.30,random_state=RANDOM_STATE)
+    group = X['epoch']
+    X_spare = X.copy()
+    X = X.drop(["condition", "Unnamed: 0","epoch"], axis=1)
+    # X_train, X_test, y_train, y_test = \
+    #     train_test_split(X, y, stratify=y, test_size=0.30,random_state=RANDOM_STATE)
+    split = GroupShuffleSplit(n_splits=1, random_state=41, test_size=0.3)
+    for i, (index_train, index_test) in enumerate(split.split(X, y, group)):
+        if i == 0:
+            X_train = X.iloc[index_train].sample(frac=1,random_state=RANDOM_STATE)
+            X_test = X.iloc[index_test]
+            y_train = y.iloc[index_train].sample(frac=1,random_state=RANDOM_STATE)
+            y_test = y.iloc[index_test]
+            # X_spare.iloc[index_train].to_csv("X_spare_train.csv")
+
+            print(X_spare.iloc[index_train]['epoch'].unique())
+            print(X_spare.iloc[index_test]['epoch'].unique()) 
+            print(len(X_spare.iloc[index_train]['epoch'].unique().tolist()))
+            print(len(X_spare.iloc[index_test]['epoch'].unique().tolist()))
+            print("label 1",len(y_train[y_train=='T1'].to_list()))
+            print("label 2",len(y_train[y_train=='T2'].to_list()))
+            # y_train.to_csv("y_train.csv")
+            # X_test.to_csv("X_test.csv")
+            
+            # y_test.to_csv("y_test.csv")
     return (X_train, X_test, y_train, y_test)
 
 
@@ -73,8 +95,8 @@ def define_grid()->dict:
     # gridSearch can perform param search across transformers in pipeline
     # as well(not only on final estimator).
     return {
-        "pca__n_components": [45, 65],
-        # "clf__alpha":[0.1, 0.3],
+        "pca__n_components": [65],
+        # "clf__alpha":[10],
     }
 
 def define_pipeline(args:argparse.Namespace) ->Pipeline:
@@ -83,10 +105,10 @@ def define_pipeline(args:argparse.Namespace) ->Pipeline:
         os.mkdir(MEMORY_CACHE_PATH)
     except FileExistsError:
         pass
-    # clf = MLPClassifier(max_iter=1000,hidden_layer_sizes=(40,), \
-    #     random_state=RANDOM_STATE, early_stopping=True, \
-    #     verbose=(True if args.verbose else False))
-    clf = DecisionTreeClassifier()
+    clf = MLPClassifier(hidden_layer_sizes=(40,), \
+        random_state=RANDOM_STATE, early_stopping=True, \
+        verbose=(True if args.verbose else False))
+    # clf = DecisionTreeClassifier(max_depth=6)
     return Pipeline([
         ('scaler', StandardScaler()),
         ('pca',PCA()),
@@ -134,6 +156,21 @@ def train(experiment:int, subject:int, args:argparse.Namespace, train_all:bool, 
         print(cv_score)
         print(f"cross_val_score: {np.array(cv_score).mean():.4f}")
         print(f"saving estimator {filename} in {MODEL_PATH}")
+        print("test", grid.score(X_test, y_test)) 
+        prediction = grid.predict(X_test) == y_test
+        try:
+            prediction = prediction.values.reshape(-1,657)
+        except Exception:
+            prediction = prediction.values.reshape(-1,665)
+        #665
+        percentages = prediction.mean(axis=1)
+        percentages = [value >= 0.5 for value in percentages ]
+        print(np.mean(percentages))
+        
+
+        # print(np.array(chunks).shape)
+        # plot_tree(grid.best_estimator_['clf'])
+        # plt.show()
     # TRAIN ALL
     # -------------------------------------------------------------
     else:
