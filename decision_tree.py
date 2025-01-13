@@ -25,7 +25,8 @@ class DecisionTreeClassifier(BaseEstimator, TransformerMixin):
         self.min_samples_split:int = min_samples_split
         self.max_depth:int | None = max_depth
         self.n_classes:np.array = np.array([])
-        self.depth:float = 0
+        self.depth_:float = 0
+        self.feature_names_in_:list | None = None
         # Tree_ class instance to hold tree information in each node (and leaf), tree_.<attribute>[0] is root,
         # index is according to depth first traversal of the node from root.
         self.tree_:Tree_ = Tree_()
@@ -51,8 +52,7 @@ class DecisionTreeClassifier(BaseEstimator, TransformerMixin):
     
     def check_subnode_criteria(self, X_segment:pd.DataFrame, y_segment:pd.Series) -> tuple:
         combined:pd.DataFrame = X_segment.copy()
-        combined['label'] = y_segment
-
+        print(combined[self.feature_names_in_[0]])
 
 
     def partition(self, X_segment:pd.DataFrame, y_segment:pd.Series, depth:int, impurity:None, )-> None:
@@ -60,8 +60,8 @@ class DecisionTreeClassifier(BaseEstimator, TransformerMixin):
         # POPULATE ATTRIBUTES
         # ----------------------------------
         # depth
-        if depth > self.depth:
-            self.depth = depth
+        if depth > self.depth_:
+            self.depth_ = depth
         # tree_.n_node_samples
         self.tree_.n_node_samples = np.append(self.tree_.n_node_samples, len(y_segment))
         # tree_.threshold
@@ -79,7 +79,7 @@ class DecisionTreeClassifier(BaseEstimator, TransformerMixin):
         else:
             self.tree_.value = np.append(self.tree_.value, value, axis=0)
 
-
+        print(len(X_segment) != 1 and len(X_segment) >= self.min_samples_split)
         # CONDITION to recursively partion
         # ----------------------------------
         if len(X_segment) != 1 and len(X_segment) >= self.min_samples_split \
@@ -87,7 +87,8 @@ class DecisionTreeClassifier(BaseEstimator, TransformerMixin):
             # CALCULATE WHETHER TO SPLIT by checking weight average of criteria of left and right subnode
             #  and compare to current
             # ---------------------------------
-            pass
+            print("here")
+            self.check_subnode_criteria(X, y)
 
             
 
@@ -101,6 +102,8 @@ class DecisionTreeClassifier(BaseEstimator, TransformerMixin):
         if isinstance(y, pd.Series) is False:
             y = pd.Series(y)
         self.classes_:np.array = y.unique()
+        self.feature_names_in_ = X.columns.values
+        print(self.feature_names_in_)
         self.partition(X, y, 0, None)
         print(self.tree_.value)
         return self

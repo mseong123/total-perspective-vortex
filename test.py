@@ -6,8 +6,6 @@ import pandas as pd
 
 
 def main():
-    # X = pd.DataFrame(np.array([[0,0], [1,1], [5,3], [4,3],[3,4], [0,1]]))
-    # y = pd.Series(np.array([0,1,0,1,0,1]))
 
     X = np.array([[0,0], [1,1], [5,3], [4,3],[3,4], [0,1]])
     y = np.array([0,1,0,1,0,1])
