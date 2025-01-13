@@ -13,12 +13,11 @@ def main():
     y = np.array([0,1,0,1,0,1])
     # clf = tree.DecisionTreeClassifier(criterion="gini")
     # clf.fit(X,y)
-    # print(type(clf.tree_.n_node_samples))
     # print(clf.tree_.feature)
-    # print(clf.tree_.value)
+    # print(clf.tree_.impurity)
     # tree.plot_tree(clf)
     # plt.show()
-    clf = DecisionTreeClassifier()
+    clf = DecisionTreeClassifier(criterion='gini')
     clf.fit(X, y)
     
 

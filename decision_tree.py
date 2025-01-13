@@ -8,13 +8,15 @@ import numpy as np
 
 class Tree_():
     def __init__(self):
-        # array of shape (node, gini value for current node)
+        # array for gini value for node at index
         self.threshold:np.array = np.array([])
-        # array of shape (node, no of samples for current node)
+        # array of no of samples for node at index
         self.n_node_samples:np.array = np.array([])
-        # array of shape (node, dict). Dict element in value array = no. of samples for each
-        # class for current node)
+        # array of shape (node, value array). element in value array = no. of samples for each
+        # class for current node index)
         self.value:np.array = np.array([])
+        # array of impurity (gini or entropy) for node at index
+        self.impurity:np.array = np.array([])
 
 class DecisionTreeClassifier(BaseEstimator, TransformerMixin):
     '''class definition'''
@@ -30,11 +32,9 @@ class DecisionTreeClassifier(BaseEstimator, TransformerMixin):
 
     def gini_index(self, y_segment:pd.Series) -> float:
         '''calculate gini for segment of sample'''
-        # get unique labels
-        classes:np.array = y_segment.unique()
         result:float = 1
         # prob dist per class
-        prob_class:list[float] = [(y_segment == value).sum().item() / len(y_segment) for value in classes.tolist()]
+        prob_class:list[float] = [(y_segment == value).sum().item() / len(y_segment) for value in self.classes_.tolist()]
         # calculate entropy for this node
         for prob in prob_class:
             result = result - (prob ** 2)
@@ -42,16 +42,20 @@ class DecisionTreeClassifier(BaseEstimator, TransformerMixin):
     
     def entropy(self, y_segment:pd.Series) -> float:
         '''calculate information gain(entropy) for segment of sample'''
-        # get unique labels
-        classes:np.array = y_segment.unique()
         result:float = 0
         # calculate entropy for this node
-        for value in classes.tolist():
+        for value in self.classes_.tolist():
             prob:float = (y_segment == value).sum().item() / len(y_segment)
             result = result - ((prob) * math.log2(prob))
         return result
+    
+    def check_subnode_criteria(self, X_segment:pd.DataFrame, y_segment:pd.Series) -> tuple:
+        combined:pd.DataFrame = X_segment.copy()
+        combined['label'] = y_segment
 
-    def partition(self, X_segment:pd.DataFrame, y_segment:pd.Series, depth:int, threshold:None, )-> None:
+
+
+    def partition(self, X_segment:pd.DataFrame, y_segment:pd.Series, depth:int, impurity:None, )-> None:
         '''recursive function to partition dataset into decision tree as per criteria (gini or entropy)'''
         # POPULATE ATTRIBUTES
         # ----------------------------------
@@ -61,23 +65,30 @@ class DecisionTreeClassifier(BaseEstimator, TransformerMixin):
         # tree_.n_node_samples
         self.tree_.n_node_samples = np.append(self.tree_.n_node_samples, len(y_segment))
         # tree_.threshold
-        if threshold is None:
+        if impurity is None:
             if self.criterion == 'gini':
-                self.tree_.threshold = np.append(self.tree_.threshold, self.gini_index(y_segment))
+                self.tree_.impurity = np.append(self.tree_.impurity, self.gini_index(y_segment))
             else:
-                self.tree_.threshold = np.append(self.tree_.threshold, self.entropy(y_segment))
+                self.tree_.impurity = np.append(self.tree_.impurity, self.entropy(y_segment))
         else:
-            self.tree_.threshold = np.append(self.tree_.threshold, threshold)
+            self.tree_.impurity = np.append(self.tree_.impurity, impurity)
         # tree_.value
-        value:dict = {}
-        classes:np.array = y_segment.unique()
-        value_sum:list = [(y_segment == value).sum().item() for value in classes]
-        for i, item in enumerate(classes.tolist()):
-            value[item] = value_sum[i]
-        self.tree_.value = np.append(self.tree_.value, value)
-        
-        # condition to recursively partion
-        # if len(X_segment) != 1 and len(X_segment) >= self.min_samples_split and depth < self.max_depth:
+        value:list = [(y_segment == value).sum().item() for value in self.classes_]
+        if len(self.tree_.value) == 0:
+            self.tree_.value = np.array([value])
+        else:
+            self.tree_.value = np.append(self.tree_.value, value, axis=0)
+
+
+        # CONDITION to recursively partion
+        # ----------------------------------
+        if len(X_segment) != 1 and len(X_segment) >= self.min_samples_split \
+            and (self.max_depth is not None and depth < self.max_depth):
+            # CALCULATE WHETHER TO SPLIT by checking weight average of criteria of left and right subnode
+            #  and compare to current
+            # ---------------------------------
+            pass
+
             
 
 
@@ -89,6 +100,7 @@ class DecisionTreeClassifier(BaseEstimator, TransformerMixin):
             X = pd.DataFrame(X)
         if isinstance(y, pd.Series) is False:
             y = pd.Series(y)
-        self.n_classes:np.array = y.unique()
+        self.classes_:np.array = y.unique()
         self.partition(X, y, 0, None)
+        print(self.tree_.value)
         return self
