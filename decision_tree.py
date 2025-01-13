@@ -12,7 +12,7 @@ class Tree_():
         self.threshold:np.array = np.array([])
         # array of shape (node, no of samples for current node)
         self.n_node_samples:np.array = np.array([])
-        # array of shape (node, list of value). Element in value list = no. of samples for each
+        # array of shape (node, dict). Dict element in value array = no. of samples for each
         # class for current node)
         self.value:np.array = np.array([])
 
@@ -26,7 +26,7 @@ class DecisionTreeClassifier(BaseEstimator, TransformerMixin):
         self.depth:float = 0
         # Tree_ class instance to hold tree information in each node (and leaf), tree_.<attribute>[0] is root,
         # index is according to depth first traversal of the node from root.
-        tree_:Tree_ = Tree_()
+        self.tree_:Tree_ = Tree_()
 
     def gini_index(self, y_segment:pd.Series) -> float:
         '''calculate gini for segment of sample'''
@@ -51,28 +51,44 @@ class DecisionTreeClassifier(BaseEstimator, TransformerMixin):
             result = result - ((prob) * math.log2(prob))
         return result
 
-
-
-    def partition(self, X_segment:pd.DataFrame, y_segment:pd.Series, depth:int, threshold:float, )-> None:
+    def partition(self, X_segment:pd.DataFrame, y_segment:pd.Series, depth:int, threshold:None, )-> None:
         '''recursive function to partition dataset into decision tree as per criteria (gini or entropy)'''
+        # POPULATE ATTRIBUTES
+        # ----------------------------------
+        # depth
         if depth > self.depth:
             self.depth = depth
-        np.append(self.tree_.n_node_samples, len(y_segment))
-        np.append(self.tree_.threshold, threshold)
+        # tree_.n_node_samples
+        self.tree_.n_node_samples = np.append(self.tree_.n_node_samples, len(y_segment))
+        # tree_.threshold
+        if threshold is None:
+            if self.criterion == 'gini':
+                self.tree_.threshold = np.append(self.tree_.threshold, self.gini_index(y_segment))
+            else:
+                self.tree_.threshold = np.append(self.tree_.threshold, self.entropy(y_segment))
+        else:
+            self.tree_.threshold = np.append(self.tree_.threshold, threshold)
+        # tree_.value
+        value:dict = {}
         classes:np.array = y_segment.unique()
-        value:np.array = np.array([(y_segment == value).sum().item() for value in classes])
-        np.append(self.tree_.value)
-        if len(X_segment) != 1 and len(X_segment) >= self.min_samples_split and depth < self.max_depth:
+        value_sum:list = [(y_segment == value).sum().item() for value in classes]
+        for i, item in enumerate(classes.tolist()):
+            value[item] = value_sum[i]
+        self.tree_.value = np.append(self.tree_.value, value)
+        
+        # condition to recursively partion
+        # if len(X_segment) != 1 and len(X_segment) >= self.min_samples_split and depth < self.max_depth:
             
 
 
 
 
-    def fit(self, X:pd.DataFrame | np.array, y:pd.Series | np.array):
-        if isinstance(X, pd.DataFrame) == False:
+    def fit(self, X:pd.DataFrame, y:pd.Series):
+        '''fit method'''
+        if isinstance(X, pd.DataFrame) is False:
             X = pd.DataFrame(X)
-        if isinstance(y, pd.Series) == False:
+        if isinstance(y, pd.Series) is False:
             y = pd.Series(y)
         self.n_classes:np.array = y.unique()
-        self.partition(X, y, 0)
+        self.partition(X, y, 0, None)
         return self
