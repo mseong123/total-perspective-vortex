@@ -10,7 +10,7 @@ import numpy as np
 from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import Pipeline
 # from sklearn.decomposition import PCA
-from sklearn.neural_network import MLPClassifier
+from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.model_selection import GridSearchCV, train_test_split
 from param import get_param,get_prefix, PREPROCESSED_PATH, \
@@ -74,7 +74,6 @@ def define_grid()->dict:
     # as well(not only on final estimator).
     return {
         "pca__n_components": [45, 65],
-        # "clf__alpha":[0.1, 0.3],
     }
 
 def define_pipeline(args:argparse.Namespace) ->Pipeline:
@@ -83,10 +82,7 @@ def define_pipeline(args:argparse.Namespace) ->Pipeline:
         os.mkdir(MEMORY_CACHE_PATH)
     except FileExistsError:
         pass
-    # clf = MLPClassifier(max_iter=1000,hidden_layer_sizes=(40,), \
-    #     random_state=RANDOM_STATE, early_stopping=True, \
-    #     verbose=(True if args.verbose else False))
-    clf = DecisionTreeClassifier()
+    clf = LogisticRegression(max_iter=500)
     return Pipeline([
         ('scaler', StandardScaler()),
         ('pca',PCA()),
