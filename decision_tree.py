@@ -49,7 +49,7 @@ class DecisionTreeClassifier(BaseEstimator, TransformerMixin):
         # calculate entropy for this node
         for value in self.classes_.tolist():
             prob:float = (y_segment == value).sum().item() / len(y_segment)
-            result = result - ((prob) * math.log2(prob))
+            result = result - ((prob) * math.log2(max(prob, 1e-10)))
         return result
     
     def check_subnode_split(self, X_segment:pd.DataFrame, y_segment:pd.Series) -> tuple:
@@ -65,13 +65,13 @@ class DecisionTreeClassifier(BaseEstimator, TransformerMixin):
 
         # outer loop iterate through feature
         for feature_index_temp, feature in enumerate(self.feature_names_in_):
-            combined:pd.DataFrame = X_segment[feature]
+            combined:pd.DataFrame = pd.DataFrame(X_segment[feature], columns=[feature])
             combined['label'] = y_segment
-            # Combine feature column and label to create a df and sort them together in order to decide 
+            # Combine feature column and label to create a df and sort them together in order to decide
             # threshold for feature
             combined = combined.sort_values(by=feature)
-            # inner loop iterate through length of sample for current node to calculate combination of 
-            # impurity for left and right subnode and their weight and decide which sample length to split 
+            # inner loop iterate through length of sample for current node to calculate combination of
+            # impurity for left and right subnode and their weight and decide which sample length to split
             # it by
             for i in range(1,len(combined)):
                 if self.criterion == 'gini':
@@ -87,7 +87,9 @@ class DecisionTreeClassifier(BaseEstimator, TransformerMixin):
                 # than previous sample split, if yes log values at top level to be returned
                 # by function.
                 if weighted_temp_impurity < self.tree_.impurity[len(self.tree_.impurity) - 1] \
-                    and weighted_temp_impurity < weighted_impurity:
+                    and (weighted_impurity == -1 or (weighted_impurity != -1 and \
+                        weighted_temp_impurity < weighted_impurity)):
+                    print("here")
                     left_subnode_impurity = left_temp_impurity
                     right_subnode_impurity = right_temp_impurity
                     weighted_impurity = weighted_temp_impurity
@@ -124,14 +126,15 @@ class DecisionTreeClassifier(BaseEstimator, TransformerMixin):
         if len(self.tree_.value) == 0:
             self.tree_.value = np.array([value])
         else:
-            self.tree_.value = np.append(self.tree_.value, value, axis=0)
+            self.tree_.value = np.append(self.tree_.value, [value], axis=0)
         # check depth, if > instance's depth_, replace value
         if depth > self.depth_:
             self.depth_ = depth
 
         # HYPERPARAM CONDITIONs to check whether to recursively partition
         # ----------------------------------
-        if len(X_segment) != 1 and len(X_segment) >= self.min_samples_split \
+        if self.tree_.n_node_samples[len(self.tree_.n_node_samples) - 1] > 1 and \
+            self.tree_.n_node_samples[len(self.tree_.n_node_samples) - 1] >= self.min_samples_split \
             and (self.max_depth is None or (self.max_depth is not None and depth < self.max_depth)):
             # CALCULATE whether to split and values of the node
             # ---------------------------------
@@ -161,7 +164,6 @@ class DecisionTreeClassifier(BaseEstimator, TransformerMixin):
             y = pd.Series(y)
         self.classes_:np.array = y.unique()
         self.feature_names_in_ = X.columns.values
-        print(self.feature_names_in_)
         self.partition(X, y, 0, None)
-        print(self.tree_.value)
+        print(self.tree_.n_node_samples)
         return self
