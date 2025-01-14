@@ -74,6 +74,8 @@ class DecisionTreeClassifier(BaseEstimator, TransformerMixin):
             # impurity for left and right subnode and their weight and decide which sample length to split
             # it by
             for i in range(1,len(combined)):
+                if combined[feature].iloc[i] == combined[feature].iloc[i-1]:    
+                    continue
                 if self.criterion == 'gini':
                     left_temp_impurity = self.gini_index(combined['label'].iloc[0:i])
                     right_temp_impurity = self.gini_index(combined['label'].iloc[i:len(combined)])
@@ -86,10 +88,15 @@ class DecisionTreeClassifier(BaseEstimator, TransformerMixin):
                 # check calculated impurity is 1) less than at current node and whether less
                 # than previous sample split, if yes log values at top level to be returned
                 # by function.
+                print("node", self.tree_.n_node_samples[len(self.tree_.n_node_samples)-1])
+                print("weighted impurity",weighted_temp_impurity)
+                print("left impurity", left_temp_impurity)
+                print("right impurity", right_temp_impurity)
+                print("feature", feature_index_temp)
+                print("df", combined[feature])
                 if weighted_temp_impurity < self.tree_.impurity[len(self.tree_.impurity) - 1] \
                     and (weighted_impurity == -1 or (weighted_impurity != -1 and \
                         weighted_temp_impurity < weighted_impurity)):
-                    print("here")
                     left_subnode_impurity = left_temp_impurity
                     right_subnode_impurity = right_temp_impurity
                     weighted_impurity = weighted_temp_impurity
@@ -98,13 +105,13 @@ class DecisionTreeClassifier(BaseEstimator, TransformerMixin):
                     # index of split
                     sample_split_index = i
                     # calculate mid-point value of split of samples for threshold
-                    threshold = combined[feature].iloc[i-1:i] + combined[feature].iloc[i:i+1]
+                    threshold = (float(combined[feature].iloc[i - 1]) + float(combined[feature].iloc[i])) / 2
         return (left_subnode_impurity, right_subnode_impurity, feature_index, sample_split_index, threshold)
                     
                     
 
 
-    def partition(self, X_segment:pd.DataFrame, y_segment:pd.Series, depth:int, impurity:None)-> None:
+    def partition(self, X_segment:pd.DataFrame, y_segment:pd.Series, depth:int, impurity:float | None)-> None:
         '''recursive function to partition dataset into decision tree as per criteria (gini or entropy)'''
         # POPULATE ATTRIBUTES
         # ----------------------------------
@@ -132,16 +139,14 @@ class DecisionTreeClassifier(BaseEstimator, TransformerMixin):
             self.depth_ = depth
 
         # HYPERPARAM CONDITIONs to check whether to recursively partition
-        # ----------------------------------
+        # ---------------------------------------------------------------
         if self.tree_.n_node_samples[len(self.tree_.n_node_samples) - 1] > 1 and \
             self.tree_.n_node_samples[len(self.tree_.n_node_samples) - 1] >= self.min_samples_split \
             and (self.max_depth is None or (self.max_depth is not None and depth < self.max_depth)):
             # CALCULATE whether to split and values of the node
-            # ---------------------------------
+            # --------------------------------------------------
             left_subnode_impurity, right_subnode_impurity, feature_index, sample_split_index, threshold = \
                 self.check_subnode_split(X_segment, y_segment)
-            # check if result is partition or not (if TRUE, recursively call function)
-            self.tree_.threshold = np.append(self.tree_.threshold, threshold)
             # append these 2 values at index of location of node regardless whether split or not
             self.tree_.feature = np.append(self.tree_.feature, feature_index)
             self.tree_.threshold = np.append(self.tree_.threshold, threshold)
@@ -165,5 +170,8 @@ class DecisionTreeClassifier(BaseEstimator, TransformerMixin):
         self.classes_:np.array = y.unique()
         self.feature_names_in_ = X.columns.values
         self.partition(X, y, 0, None)
-        print(self.tree_.n_node_samples)
+        print("node",self.tree_.n_node_samples)
+        print("threshold",self.tree_.threshold)
+        print("impurity",self.tree_.impurity)
+        print("feature",self.tree_.feature)
         return self
