@@ -26,7 +26,7 @@ class DecisionTreeClassifier(BaseEstimator, TransformerMixin):
         self.criterion:str = criterion
         self.min_samples_split:int = min_samples_split
         self.max_depth:int | None = max_depth
-        self.n_classes:np.array = np.array([])
+        self.classes_:np.array = np.array([])
         self.depth_:float = 0
         self.feature_names_in_:list | None = None
         # Tree_ class instance to hold tree information in each node (and leaf), tree_.<attribute>[0] is root,
@@ -55,21 +55,23 @@ class DecisionTreeClassifier(BaseEstimator, TransformerMixin):
     def check_subnode_split(self, X_segment:pd.DataFrame, y_segment:pd.Series) -> tuple:
         '''function to iterate through each feature and calculate weighted impurity '''
 
-        # values to return from this function as a tuple
-        left_subnode_impurity:float = 0
-        right_subnode_impurity:float = 0
-        weighted_impurity:float = 0
-
+        # top level values to return from this function as a tuple
+        left_subnode_impurity:float = -1
+        right_subnode_impurity:float = -1
+        weighted_impurity:float = -1
+        feature_index:int = -1
+        sample_split_index:int = -1
+        threshold:float = -1 
 
         # outer loop iterate through feature
-        for feature in self.feature_names_in_:
+        for feature_index_temp, feature in enumerate(self.feature_names_in_):
             combined:pd.DataFrame = X_segment[feature]
             combined['label'] = y_segment
             # Combine feature column and label to create a df and sort them together in order to decide 
             # threshold for feature
             combined = combined.sort_values(by=feature)
             # inner loop iterate through length of sample for current node to calculate combination of 
-            # impurity for left and right subnode and their weight and decide which sample length. to split 
+            # impurity for left and right subnode and their weight and decide which sample length to split 
             # it by
             for i in range(1,len(combined)):
                 if self.criterion == 'gini':
@@ -78,9 +80,26 @@ class DecisionTreeClassifier(BaseEstimator, TransformerMixin):
                 else:
                     left_temp_impurity = self.entropy(combined['label'].iloc[0:i])
                     right_temp_impurity = self.entropy(combined['label'].iloc[i:len(combined)])
+                # impurity weighted by samples split at left and right
                 weighted_temp_impurity = (i / len(combined) * left_temp_impurity) + \
                 ((len(combined) - i) / len(combined) * right_temp_impurity)
-                if weighted_temp_impurity <   
+                # check calculated impurity is 1) less than at current node and whether less
+                # than previous sample split, if yes log values at top level to be returned
+                # by function.
+                if weighted_temp_impurity < self.tree_.impurity[len(self.tree_.impurity) - 1] \
+                    and weighted_temp_impurity < weighted_impurity:
+                    left_subnode_impurity = left_temp_impurity
+                    right_subnode_impurity = right_temp_impurity
+                    weighted_impurity = weighted_temp_impurity
+                    # index of feature
+                    feature_index = feature_index_temp
+                    # index of split
+                    sample_split_index = i
+                    # calculate mid-point value of split of samples for threshold
+                    threshold = combined[feature].iloc[i-1:i] + combined[feature].iloc[i:i+1]
+        return (left_subnode_impurity, right_subnode_impurity, feature_index, sample_split_index, threshold)
+                    
+                    
 
 
     def partition(self, X_segment:pd.DataFrame, y_segment:pd.Series, depth:int, impurity:None)-> None:
@@ -106,20 +125,33 @@ class DecisionTreeClassifier(BaseEstimator, TransformerMixin):
             self.tree_.value = np.array([value])
         else:
             self.tree_.value = np.append(self.tree_.value, value, axis=0)
+        # check depth, if > instance's depth_, replace value
+        if depth > self.depth_:
+            self.depth_ = depth
 
-        # CONDITION to recursively partion
+        # HYPERPARAM CONDITIONs to check whether to recursively partition
         # ----------------------------------
         if len(X_segment) != 1 and len(X_segment) >= self.min_samples_split \
             and (self.max_depth is None or (self.max_depth is not None and depth < self.max_depth)):
-            # CALCULATE WHETHER TO SPLIT by checking weight average of criteria of left and right subnode
-            #  and compare to current
+            # CALCULATE whether to split and values of the node
             # ---------------------------------
-            self.check_subnode_split(X_segment, y_segment)
-
-            
-
-
-
+            left_subnode_impurity, right_subnode_impurity, feature_index, sample_split_index, threshold = \
+                self.check_subnode_split(X_segment, y_segment)
+            # check if result is partition or not (if TRUE, recursively call function)
+            self.tree_.threshold = np.append(self.tree_.threshold, threshold)
+            # append these 2 values at index of location of node regardless whether split or not
+            self.tree_.feature = np.append(self.tree_.feature, feature_index)
+            self.tree_.threshold = np.append(self.tree_.threshold, threshold)
+            if left_subnode_impurity != -1:
+                # split left node
+                self.partition(X_segment.iloc[0:sample_split_index], y_segment.iloc[0:sample_split_index], depth + 1, left_subnode_impurity)
+                # split right node
+                self.partition(X_segment.iloc[sample_split_index:len(X_segment)], y_segment.iloc[sample_split_index:len(y_segment)], depth + 1, right_subnode_impurity)
+        # if don't partition as per hyperparams, append -1 in relevant values at index of location of node
+        # to indicate that they are leaf
+        else:
+            self.tree_.feature = np.append(self.tree_.feature, -1)
+            self.tree_.threshold = np.append(self.tree_.threshold, -1)
 
     def fit(self, X:pd.DataFrame, y:pd.Series):
         '''fit method'''

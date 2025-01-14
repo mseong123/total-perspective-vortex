@@ -11,7 +11,7 @@ def main():
     y = np.array([0,1,0,1,0,1])
     clf = tree.DecisionTreeClassifier(criterion="gini")
     clf.fit(X,y)
-    print(clf.tree_.feature)
+    print(clf.tree_.threshold)
     print(clf.tree_.impurity)
     tree.plot_tree(clf)
     plt.show()
