@@ -8,8 +8,10 @@ import numpy as np
 
 class Tree_():
     def __init__(self):
-        # array for gini value for node at index
+        # array for threshold value for node at index
         self.threshold:np.array = np.array([])
+        # array for feature for node at index
+        self.feature:np.array = np.array([])
         # array of no of samples for node at index
         self.n_node_samples:np.array = np.array([])
         # array of shape (node, value array). element in value array = no. of samples for each
@@ -50,12 +52,38 @@ class DecisionTreeClassifier(BaseEstimator, TransformerMixin):
             result = result - ((prob) * math.log2(prob))
         return result
     
-    def check_subnode_criteria(self, X_segment:pd.DataFrame, y_segment:pd.Series) -> tuple:
-        combined:pd.DataFrame = X_segment.copy()
-        print(combined[self.feature_names_in_[0]])
+    def check_subnode_split(self, X_segment:pd.DataFrame, y_segment:pd.Series) -> tuple:
+        '''function to iterate through each feature and calculate weighted impurity '''
+
+        # values to return from this function as a tuple
+        left_subnode_impurity:float = 0
+        right_subnode_impurity:float = 0
+        weighted_impurity:float = 0
 
 
-    def partition(self, X_segment:pd.DataFrame, y_segment:pd.Series, depth:int, impurity:None, )-> None:
+        # outer loop iterate through feature
+        for feature in self.feature_names_in_:
+            combined:pd.DataFrame = X_segment[feature]
+            combined['label'] = y_segment
+            # Combine feature column and label to create a df and sort them together in order to decide 
+            # threshold for feature
+            combined = combined.sort_values(by=feature)
+            # inner loop iterate through length of sample for current node to calculate combination of 
+            # impurity for left and right subnode and their weight and decide which sample length. to split 
+            # it by
+            for i in range(1,len(combined)):
+                if self.criterion == 'gini':
+                    left_temp_impurity = self.gini_index(combined['label'].iloc[0:i])
+                    right_temp_impurity = self.gini_index(combined['label'].iloc[i:len(combined)])
+                else:
+                    left_temp_impurity = self.entropy(combined['label'].iloc[0:i])
+                    right_temp_impurity = self.entropy(combined['label'].iloc[i:len(combined)])
+                weighted_temp_impurity = (i / len(combined) * left_temp_impurity) + \
+                ((len(combined) - i) / len(combined) * right_temp_impurity)
+                if weighted_temp_impurity <   
+
+
+    def partition(self, X_segment:pd.DataFrame, y_segment:pd.Series, depth:int, impurity:None)-> None:
         '''recursive function to partition dataset into decision tree as per criteria (gini or entropy)'''
         # POPULATE ATTRIBUTES
         # ----------------------------------
@@ -64,7 +92,7 @@ class DecisionTreeClassifier(BaseEstimator, TransformerMixin):
             self.depth_ = depth
         # tree_.n_node_samples
         self.tree_.n_node_samples = np.append(self.tree_.n_node_samples, len(y_segment))
-        # tree_.threshold
+        # tree_.impurity
         if impurity is None:
             if self.criterion == 'gini':
                 self.tree_.impurity = np.append(self.tree_.impurity, self.gini_index(y_segment))
@@ -79,16 +107,14 @@ class DecisionTreeClassifier(BaseEstimator, TransformerMixin):
         else:
             self.tree_.value = np.append(self.tree_.value, value, axis=0)
 
-        print(len(X_segment) != 1 and len(X_segment) >= self.min_samples_split)
         # CONDITION to recursively partion
         # ----------------------------------
         if len(X_segment) != 1 and len(X_segment) >= self.min_samples_split \
-            and (self.max_depth is not None and depth < self.max_depth):
+            and (self.max_depth is None or (self.max_depth is not None and depth < self.max_depth)):
             # CALCULATE WHETHER TO SPLIT by checking weight average of criteria of left and right subnode
             #  and compare to current
             # ---------------------------------
-            print("here")
-            self.check_subnode_criteria(X, y)
+            self.check_subnode_split(X_segment, y_segment)
 
             
 
