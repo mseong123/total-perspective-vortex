@@ -88,12 +88,6 @@ class DecisionTreeClassifier(BaseEstimator, TransformerMixin):
                 # check calculated impurity is 1) less than at current node and whether less
                 # than previous sample split, if yes log values at top level to be returned
                 # by function.
-                print("node", self.tree_.n_node_samples[len(self.tree_.n_node_samples)-1])
-                print("weighted impurity",weighted_temp_impurity)
-                print("left impurity", left_temp_impurity)
-                print("right impurity", right_temp_impurity)
-                print("feature", feature_index_temp)
-                print("df", sub_combined[feature])
                 if weighted_temp_impurity < self.tree_.impurity[len(self.tree_.impurity) - 1] \
                     and (weighted_impurity == -1 or (weighted_impurity != -1 and \
                         weighted_temp_impurity < weighted_impurity)):
@@ -153,7 +147,7 @@ class DecisionTreeClassifier(BaseEstimator, TransformerMixin):
             self.tree_.threshold = np.append(self.tree_.threshold, threshold)
             if left_subnode_impurity != -1:
                 # sort based on feature return by check_subnode_split then only split by sample index
-                combined.sort_values(by=combined.columns.values[feature_index], inplace=True)
+                combined = combined.sort_values(by=combined.columns.values[feature_index])
                 # split left node
                 self.partition(combined[0:sample_split_index], depth + 1, left_subnode_impurity)
                 # split right node
@@ -164,9 +158,9 @@ class DecisionTreeClassifier(BaseEstimator, TransformerMixin):
             self.tree_.feature = np.append(self.tree_.feature, -1)
             self.tree_.threshold = np.append(self.tree_.threshold, -1)
 
-    def fit(self, X:pd.DataFrame | np.array, y:pd.Series | np.array):
+    def fit(self, X:pd.DataFrame, y:pd.Series):
         '''fit method'''
-        # accepts numpy params as well. Convert to DF 
+        # accepts numpy params as well. Convert to DF
         if isinstance(X, pd.DataFrame) is False:
             X = pd.DataFrame(X)
         if isinstance(y, pd.Series) is False:
