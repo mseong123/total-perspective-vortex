@@ -200,16 +200,16 @@ def main():
             return
     else:
         overall_score:list = []
-        for i in range(5):
+        for i in range(6):
             indiv_score:list = []
             for j in range(109):
                 if i == 2 and j == 105:
-                    pass
+                    continue
                 else:
                     train(i + 1, j + 1, args, True, indiv_score)
-                    mean_score:float = np.array(indiv_score).mean()
-                    overall_score.append(mean_score)
-                    indiv_score = []
+            mean_score:float = np.array(indiv_score).mean()
+            overall_score.append(mean_score)
+            indiv_score = []
         print(f"\nMean accuracy of the {i + 1} different experiments for all 109 subjects:")
         for i, score in enumerate(overall_score):
             print(f"experiment {i + 1}:        accuracy = {score}")

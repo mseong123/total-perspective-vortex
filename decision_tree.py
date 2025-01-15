@@ -177,4 +177,39 @@ class DecisionTreeClassifier(BaseEstimator, TransformerMixin):
         print("threshold",self.tree_.threshold)
         print("impurity",self.tree_.impurity)
         print("feature",self.tree_.feature)
+        # print("value",self.tree_.value)
         return self
+
+    def eval_node(self, index:int) -> int:
+        '''eval leaf node and return predict node based on self.tree_.value at node'''
+        return np.argmax(self.tree_.value[index])
+
+
+
+
+    def predict(self, X:pd.DataFrame)->np.array:
+        '''predict method'''
+        if isinstance(X, pd.DataFrame) is False:
+            X = pd.DataFrame(X)
+        prediction:np.array = np.array([])
+        for _, row in X.iterrows():
+            j = 0
+            while j < len(self.tree_.n_node_samples):
+                if self.tree_.feature[j] == -1:
+                    prediction = np.append(prediction, self.classes_[self.eval_node(j)])
+                    break
+                elif row.iloc[int(self.tree_.feature[j])] <= self.tree_.threshold[j]:
+                    j = j + 1
+                elif row.iloc[int(self.tree_.feature[j])] > self.tree_.threshold[j]:
+                    for k in range(j + 2, len(self.tree_.n_node_samples)):
+                        if self.tree_.n_node_samples[j] - self.tree_.n_node_samples[j + 1] == self.tree_.n_node_samples[k]:
+                            j = k
+                            break
+        return prediction
+                        
+                    
+
+
+
+        
+        
