@@ -19,6 +19,11 @@ class Tree_():
         self.value:np.array = np.array([])
         # array of impurity (gini or entropy) for node at index
         self.impurity:np.array = np.array([])
+        # array of left and right children index (based on n_node_samples) for prediction purpose when traversing
+        # the tree
+        self.children_left:np.array = np.array([])
+        self.children_right:np.array = np.array([])
+
 
 class DecisionTreeClassifier(BaseEstimator, TransformerMixin):
     '''class definition'''
@@ -149,9 +154,14 @@ class DecisionTreeClassifier(BaseEstimator, TransformerMixin):
                 # sort based on feature return by check_subnode_split then only split by sample index
                 combined = combined.sort_values(by=combined.columns.values[feature_index])
                 # split left node
+                self.tree_.children_left = np.append(self.tree_.children_left, len(self.tree_.n_node_samples))
+                self.tree_.children_right = np.append(self.tree_.children_right, -1)
                 self.partition(combined[0:sample_split_index], depth + 1, left_subnode_impurity)
                 # split right node
+                self.tree_.children_right = np.append(len(self.tree_.n_node_samples),self.tree_.children_right)
+                self.tree_.children_left = np.append(self.tree_.children_left, -1)
                 self.partition(combined[sample_split_index:len(combined)], depth + 1, right_subnode_impurity)
+
         # if don't partition as per hyperparams, append -1 in relevant values at index of location of node
         # to indicate that they are leaf
         else:
@@ -177,6 +187,8 @@ class DecisionTreeClassifier(BaseEstimator, TransformerMixin):
         print("threshold",self.tree_.threshold)
         print("impurity",self.tree_.impurity)
         print("feature",self.tree_.feature)
+        print("children_left", self.tree_.children_left)
+        print("children_right", self.tree_.children_right)
         # print("value",self.tree_.value)
         return self
 
