@@ -2,4 +2,4 @@ data/
 preprocessed_data/
 memcache/
 model/
-# __pycache__/
+__pycache__/
