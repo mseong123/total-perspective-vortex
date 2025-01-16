@@ -11,13 +11,11 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import Pipeline
 # from sklearn.decomposition import PCA
 from sklearn.linear_model import LogisticRegression
-from sklearn.tree import DecisionTreeClassifier
 from sklearn.model_selection import GridSearchCV, train_test_split
 from param import get_param,get_prefix, PREPROCESSED_PATH, \
     RANDOM_STATE, MEMORY_CACHE_PATH, MODEL_PATH, \
     BATCH_SIZE
 from my_pca import PCA
-
 
 def define_args()->argparse.Namespace:
     '''define arguments in command line'''
@@ -74,6 +72,7 @@ def define_grid()->dict:
     # as well(not only on final estimator).
     return {
         "pca__n_components": [45, 65],
+        "clf__C":[4,0.5]
     }
 
 def define_pipeline(args:argparse.Namespace) ->Pipeline:
@@ -217,4 +216,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-

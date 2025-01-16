@@ -3,11 +3,13 @@ hyperparams criterion, min_samples_leaf and max_depth'''
 
 import math
 from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn.metrics import accuracy_score
 import pandas as pd
 import numpy as np
 
 class Tree_():
     def __init__(self):
+        '''init'''
         # array for threshold value for node at index
         self.threshold:np.array = np.array([])
         # array for feature for node at index
@@ -19,8 +21,8 @@ class Tree_():
         self.value:np.array = np.array([])
         # array of impurity (gini or entropy) for node at index
         self.impurity:np.array = np.array([])
-        # array of left and right children index (based on n_node_samples) for prediction purpose when traversing
-        # the tree
+        # array of left and right children index (based on n_node_samples) for prediction
+        # purpose when traversing the tree
         self.children_left:np.array = np.array([])
         self.children_right:np.array = np.array([])
 
@@ -105,6 +107,7 @@ class DecisionTreeClassifier(BaseEstimator, TransformerMixin):
                     sample_split_index = i
                     # calculate mid-point value of split of samples for threshold
                     threshold = (float(sub_combined[feature].iloc[i - 1]) + float(sub_combined[feature].iloc[i])) / 2
+                
         return (left_subnode_impurity, right_subnode_impurity, feature_index, sample_split_index, threshold)
                     
     def insert_right_child(self, position:int, value:int) -> None:
@@ -126,11 +129,9 @@ class DecisionTreeClassifier(BaseEstimator, TransformerMixin):
     def partition(self, combined:pd.DataFrame, depth:int, impurity:float)-> None:
         '''recursive function to partition dataset into decision tree as per criteria (gini or entropy)'''
         # POPULATE ATTRIBUTES
-        # ----------------------------------
-        # depth
-        if depth > self.depth_:
-            self.depth_ = depth
+        # ---------------------------------- 
         # tree_.n_node_samples
+
         self.tree_.n_node_samples = np.append(self.tree_.n_node_samples, len(combined))
         # set a top position variable for each recursive function for manipulation of right children array
         right_children_position:int = len(self.tree_.n_node_samples) - 1
@@ -152,7 +153,6 @@ class DecisionTreeClassifier(BaseEstimator, TransformerMixin):
         # check depth, if > instance's depth_, replace value
         if depth > self.depth_:
             self.depth_ = depth
-
         # HYPERPARAM CONDITIONs to check whether to recursively partition and whether the node
         # has one sample left (means leaf node) 
         # ---------------------------------------------------------------
@@ -194,26 +194,31 @@ class DecisionTreeClassifier(BaseEstimator, TransformerMixin):
             X = pd.DataFrame(X)
         if isinstance(y, pd.Series) is False:
             y = pd.Series(y)
+        X = X.reset_index(drop=True)
+        y = y.reset_index(drop=True)
         # array of classes value from y
-        self.classes_:np.array = y.unique()
+        self.classes_:np.array = y.unique().astype(int)
         # array of feature names
         self.feature_names_in_ = X.columns.values
         # combine to one df for ease of sorting
-        combined:pd.DataFrame = X
+        combined:pd.DataFrame = X.copy()
         combined['label'] = y
         self.partition(combined, 0, -1)
-        print("node",self.tree_.n_node_samples)
-        print("threshold",self.tree_.threshold)
-        print("impurity",self.tree_.impurity)
-        print("feature",self.tree_.feature)
-        print("children_left", self.tree_.children_left)
-        print("children_right", self.tree_.children_right)
-        # print("value",self.tree_.value)
         return self
 
     def eval_node(self, index:int) -> int:
         '''eval leaf node and return predict node based on self.tree_.value at node'''
         return np.argmax(self.tree_.value[index])
+    
+    def score(self, X:np.array, y:np.array)-> float:
+        '''return accuracy score'''
+        if isinstance(X, pd.DataFrame) is False:
+            X = pd.DataFrame(X)
+        if isinstance(y, pd.Series) is False:
+            y = pd.Series(y)
+        y_predicted:np.array = self.predict(X)
+        return accuracy_score(y, y_predicted)
+
 
     def predict(self, X:pd.DataFrame) -> np.array:
         '''predict method'''
@@ -228,13 +233,8 @@ class DecisionTreeClassifier(BaseEstimator, TransformerMixin):
                     break
                 elif row.iloc[int(self.tree_.feature[int(j)])] <= self.tree_.threshold[int(j)]:
                     j = self.tree_.children_left[int(j)]
-                elif row.iloc[int(self.tree_.feature[int(j)])] > self.tree_.threshold[int(j)]: 
+                elif row.iloc[int(self.tree_.feature[int(j)])] > self.tree_.threshold[int(j)]:
                     j = self.tree_.children_right[int(j)]
         return prediction
-                        
-                    
+    
 
-
-
-        
-        
