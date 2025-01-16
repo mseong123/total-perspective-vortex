@@ -107,10 +107,23 @@ class DecisionTreeClassifier(BaseEstimator, TransformerMixin):
                     threshold = (float(sub_combined[feature].iloc[i - 1]) + float(sub_combined[feature].iloc[i])) / 2
         return (left_subnode_impurity, right_subnode_impurity, feature_index, sample_split_index, threshold)
                     
-                    
-
-
-    def partition(self, combined:pd.DataFrame, depth:int, impurity:float | None)-> None:
+    def insert_right_child(self, position:int, value:int) -> None:
+        '''array manipulation of tree_.children_right for insertion of elements at different positions
+        when length of array is unknown during recursion'''
+        
+        if len(self.tree_.children_right) > position:
+            self.tree_.children_right[position] = value
+        else:
+            length:int = len(self.tree_.children_right)
+            while length <= position:
+                if length == position:
+                    self.tree_.children_right = np.append(self.tree_.children_right, value)
+                    length = length + 1
+                elif length < position:
+                    self.tree_.children_right = np.append(self.tree_.children_right, 0)
+                    length = length + 1
+ 
+    def partition(self, combined:pd.DataFrame, depth:int, impurity:float)-> None:
         '''recursive function to partition dataset into decision tree as per criteria (gini or entropy)'''
         # POPULATE ATTRIBUTES
         # ----------------------------------
@@ -119,9 +132,11 @@ class DecisionTreeClassifier(BaseEstimator, TransformerMixin):
             self.depth_ = depth
         # tree_.n_node_samples
         self.tree_.n_node_samples = np.append(self.tree_.n_node_samples, len(combined))
+        # set a top position variable for each recursive function for manipulation of right children array
+        right_children_position:int = len(self.tree_.n_node_samples) - 1
         # tree_.impurity
         # for root node, calculate impurity
-        if impurity is None:
+        if impurity == -1:
             if self.criterion == 'gini':
                 self.tree_.impurity = np.append(self.tree_.impurity, self.gini_index(combined['label']))
             else:
@@ -138,7 +153,8 @@ class DecisionTreeClassifier(BaseEstimator, TransformerMixin):
         if depth > self.depth_:
             self.depth_ = depth
 
-        # HYPERPARAM CONDITIONs to check whether to recursively partition
+        # HYPERPARAM CONDITIONs to check whether to recursively partition and whether the node
+        # has one sample left (means leaf node) 
         # ---------------------------------------------------------------
         if self.tree_.n_node_samples[len(self.tree_.n_node_samples) - 1] > 1 and \
             self.tree_.n_node_samples[len(self.tree_.n_node_samples) - 1] >= self.min_samples_split \
@@ -155,18 +171,21 @@ class DecisionTreeClassifier(BaseEstimator, TransformerMixin):
                 combined = combined.sort_values(by=combined.columns.values[feature_index])
                 # split left node
                 self.tree_.children_left = np.append(self.tree_.children_left, len(self.tree_.n_node_samples))
-                self.tree_.children_right = np.append(self.tree_.children_right, -1)
                 self.partition(combined[0:sample_split_index], depth + 1, left_subnode_impurity)
                 # split right node
-                self.tree_.children_right = np.append(len(self.tree_.n_node_samples),self.tree_.children_right)
-                self.tree_.children_left = np.append(self.tree_.children_left, -1)
+                self.insert_right_child(right_children_position, len(self.tree_.n_node_samples))
                 self.partition(combined[sample_split_index:len(combined)], depth + 1, right_subnode_impurity)
+            else:
+                self.tree_.children_left = np.append(self.tree_.children_left, -1)
+                self.insert_right_child(len(self.tree_.n_node_samples) - 1, -1)
 
         # if don't partition as per hyperparams, append -1 in relevant values at index of location of node
         # to indicate that they are leaf
         else:
             self.tree_.feature = np.append(self.tree_.feature, -1)
             self.tree_.threshold = np.append(self.tree_.threshold, -1)
+            self.tree_.children_left = np.append(self.tree_.children_left, -1)
+            self.insert_right_child(len(self.tree_.n_node_samples) - 1, -1)
 
     def fit(self, X:pd.DataFrame, y:pd.Series):
         '''fit method'''
@@ -182,7 +201,7 @@ class DecisionTreeClassifier(BaseEstimator, TransformerMixin):
         # combine to one df for ease of sorting
         combined:pd.DataFrame = X
         combined['label'] = y
-        self.partition(combined, 0, None)
+        self.partition(combined, 0, -1)
         print("node",self.tree_.n_node_samples)
         print("threshold",self.tree_.threshold)
         print("impurity",self.tree_.impurity)
@@ -196,10 +215,7 @@ class DecisionTreeClassifier(BaseEstimator, TransformerMixin):
         '''eval leaf node and return predict node based on self.tree_.value at node'''
         return np.argmax(self.tree_.value[index])
 
-
-
-
-    def predict(self, X:pd.DataFrame)->np.array:
+    def predict(self, X:pd.DataFrame) -> np.array:
         '''predict method'''
         if isinstance(X, pd.DataFrame) is False:
             X = pd.DataFrame(X)
@@ -207,16 +223,13 @@ class DecisionTreeClassifier(BaseEstimator, TransformerMixin):
         for _, row in X.iterrows():
             j = 0
             while j < len(self.tree_.n_node_samples):
-                if self.tree_.feature[j] == -1:
-                    prediction = np.append(prediction, self.classes_[self.eval_node(j)])
+                if self.tree_.feature[int(j)] == -1:
+                    prediction = np.append(prediction, self.classes_[self.eval_node(int(j))])
                     break
-                elif row.iloc[int(self.tree_.feature[j])] <= self.tree_.threshold[j]:
-                    j = j + 1
-                elif row.iloc[int(self.tree_.feature[j])] > self.tree_.threshold[j]:
-                    for k in range(j + 2, len(self.tree_.n_node_samples)):
-                        if self.tree_.n_node_samples[j] - self.tree_.n_node_samples[j + 1] == self.tree_.n_node_samples[k]:
-                            j = k
-                            break
+                elif row.iloc[int(self.tree_.feature[int(j)])] <= self.tree_.threshold[int(j)]:
+                    j = self.tree_.children_left[int(j)]
+                elif row.iloc[int(self.tree_.feature[int(j)])] > self.tree_.threshold[int(j)]: 
+                    j = self.tree_.children_right[int(j)]
         return prediction
                         
                     

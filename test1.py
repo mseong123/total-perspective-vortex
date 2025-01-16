@@ -6,11 +6,11 @@ import pandas as pd
 
 
 def main():
-
-    X = np.array([[2,3], [1,1], [3,5], [4,3],[1,10], [0,1]])
-    # X = np.array([[8,3], [1,1], [2,5], [4,3],[1,10], [0,1]])
+    X = np.array([[2,3,], [8,7], [3,5], [4,3],[1,10], [0,1]])
+    # X = np.array([[15,3], [1,15], [3,5], [4,3],[1,10], [0,1], [2,5],[5,1],[9,2],[2,2],[3,2]])
+    # y = np.array([1,1,0,1,0,1,0,1,0,1,0])
     y = np.array([1,0,1,1,2,1])
-    clf = tree.DecisionTreeClassifier(criterion="entropy")
+    clf = tree.DecisionTreeClassifier(criterion="gini")
     clf.fit(X,y)
     print("n_node_samples",clf.tree_.n_node_samples)
     print("threshold",clf.tree_.threshold)
