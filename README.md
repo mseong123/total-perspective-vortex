@@ -1,7 +1,7 @@
 # total-perspective-vortex | 42KL
 
 
-![Neural Network](https://github.com/mseong123/total-perspective-vortex/blob/main/EEG_system.jpg)
+![Neural Network](https://github.com/mseong123/total-perspective-vortex/blob/main/images/EEG_system.jpg)
 *Figure 1: Illustration of EEG system.*
 
 This project's objective delves into the domain of neuroscience where we have to parse, filter, preprocess EEG data and train a brain computer interface (BCI) program using the data. A BCI is a 
@@ -29,8 +29,17 @@ python preprocessor.py --start <participant 1 - 109> --end <participant 1 - 109>
 ```
 This will run the script to perform frequency filtering (using Fast Fourier Transform from MNE library to convert data from time domain to frequency domain), perform Independent Component Analysis(ICA) to filter for further noise (ie eye blinks/movements) and run a program - AutoReject - which sample test and remove bad epochs. Results will converted back to time series domain and stored as .csv file in `./preprocessed_data` folder. 
 
+![EEG data before filtering](https://github.com/mseong123/total-perspective-vortex/blob/main/images/EEG_prefilter.png)
 
+*Illustration of EEG data pre - filter*
 
+![Filtering for frequencies](https://github.com/mseong123/total-perspective-vortex/blob/main/images/EEG_postfilter.png)
+
+*Illustration of filtering at 1 hz - 40 hz using frequency domain*
+
+![EEG data post filtering](https://github.com/mseong123/total-perspective-vortex/blob/main/images/EEG_postfilter.png)
+
+*Illustration of EEG data post - filter*
 
 
 
