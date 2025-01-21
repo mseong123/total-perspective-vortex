@@ -35,11 +35,17 @@ This will run the script to perform frequency filtering (using Fast Fourier Tran
 
 ![Filtering for frequencies](https://github.com/mseong123/total-perspective-vortex/blob/main/images/Filtering.png)
 
-*Illustration of filtering at 1 hz - 40 hz using frequency domain*
+*Illustration of filtering at 1 hz - 40 hz using frequency domain. Human brain waves for motor imaginery movements typically at 8hz to 40hz.*
+
+![Human brain waves frequency](https://github.com/mseong123/total-perspective-vortex/blob/main/images/human_brain_waves_frequency.png)
+
+
 
 ![EEG data post filtering](https://github.com/mseong123/total-perspective-vortex/blob/main/images/EEG_postfilter.png)
 
-*Illustration of EEG data post - filter. Data looks cleaner*
+*Illustration of EEG data post - filter. Data looks 'cleaner'*
+
+Brain 
 
 
 
