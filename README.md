@@ -66,7 +66,8 @@ This will run script to train all 6 experiments for each 109 participants (654 i
 
 
 ## BONUS implementation
-Coded my own implementation of DecisionTreeClassifier based on the model provided by Scikit-Learn with the following hyperparameters implementation:
+
+Coded my own implementation of DecisionTreeClassifier (decision_tree.py) based on the model provided by Scikit-Learn with the following hyperparameters implementation:
  - criterion = 'gini' or 'entropy'
  - max-depth
  - min_samples_split
@@ -82,6 +83,11 @@ The algorithm is done recursively and the class instance have a fit(), predict()
     - impurity
     - n_node_sample
 
+### Test decision tree classifier
+```
+python decision_tree_test.py
+```
+Accuracy score is 100% on any sample test set provided.
 
 
 
