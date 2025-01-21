@@ -49,7 +49,7 @@ This will run the script to perform frequency filtering (using Fast Fourier Tran
 ```
 python bci.py train --experiment <1 - 6> --subject <1 - 109>
 ```
-This will run the script to train subject and experiment (using 70/30 split between `training` and `test` data) using Scikit-Learn data Pipeline object (which includes further processing using StandardScaler and my own implementation of PCA to reduce number of features while retaining amount of information in dataset). Training process also includes Cross KFold validation for more consistent score and GridSearchCV for hyperparameter tuning. Ensure that associated .csv preprocessed file is preprocessed first (above) and stored in `./preprocessed_data` folder. Cross KFold scores and average accuracy is shown at end of training and Python object is stored in `./model` folder.
+This will run the script to train subject and experiment (using 70/30 split between `training` and `test` data) using Scikit-Learn data Pipeline object (which includes further processing using StandardScaler and my own implementation of PCA to reduce number of features while retaining amount of information in dataset). Training process also includes Cross KFold validation for more consistent score and GridSearchCV for hyperparameter tuning. Ensure that associated .csv preprocessed file is preprocessed first (above) and stored in `./preprocessed_data` folder. Cross KFold scores and average accuracy is shown at end of training and Python object (fitted model) is stored in `./model` folder.
 
 ### To predict model
 ```
