@@ -71,6 +71,7 @@ Coded my own implementation of DecisionTreeClassifier (decision_tree.py) based o
  - criterion = 'gini' or 'entropy'
  - max-depth
  - min_samples_split
+
 The algorithm is done recursively and the class instance have a fit(), predict() and score() method as well. Data structure and attributes are stored as close as possible to Scikit-Learn's implementation including the following:
  - classes_
  - n_features_in_
