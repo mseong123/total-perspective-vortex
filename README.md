@@ -62,9 +62,25 @@ This will run the script to stream `test` data at 1000 samples per second and ou
 ```
 python bci.py
 ```
-This will run script to train all 6 experiments for each 109 participants (654 in total) and output the scores on their respective test set. Results are in ./result.txt file above. Average score is 84%.
+This will run script to train all 6 experiments for each 109 participants (654 in total) and output the scores on their respective test set. Results are stored in result.txt file. Average score is 84%.
+
 
 ## BONUS implementation
+Coded my own implementation of DecisionTreeClassifier based on the model provided by Scikit-Learn with the following hyperparameters implementation:
+ - criterion = 'gini' or 'entropy'
+ - max-depth
+ - min_samples_split
+The algorithm is done recursively and the class instance have a fit(), predict() and score() method as well. Data structure and attributes are stored as close as possible to Scikit-Learn's implementation including the following:
+ - classes_
+ - n_features_in_
+ - tree_
+    - children_left
+    - children_right
+    - feature
+    - threshold
+    - value
+    - impurity
+    - n_node_sample
 
 
 
