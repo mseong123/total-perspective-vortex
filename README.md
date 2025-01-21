@@ -10,10 +10,11 @@ direct communication link between the brain's electrical activity and an externa
 This project builds on machine learning methodologies from previous projects and focus specifically on the following topics:
  - Data parsing and preprocessing using [MNE Python](https://mne.tools/stable/generated/mne.Epochs.html) (frequency filtering using Fourier Transform)
  - Data visualization of brain EEG signals.
- - Feature extraction using Independent component analysis (ICA) and noise filtering (eye movements, neck movements)
- - Data Processing Pipeline using [Scikit-Learn Pipeline class](https://scikit-learn.org/1.5/modules/generated/sklearn.pipeline.Pipeline.html)
+ - Feature extraction using Independent component analysis (ICA) and noise filtering (eye movements, neck movements).
+ - Data Processing Pipeline using [Scikit-Learn Pipeline class](https://scikit-learn.org/1.5/modules/generated/sklearn.pipeline.Pipeline.html).
+ - Dimensionality reduction using Principal Component Analysis (PCA).
  - Cross Kfold validation using [Scikit-Learn KFold](https://scikit-learn.org/dev/modules/generated/sklearn.model_selection.KFold.html) and usage of GridSearchCV [Scikit-Learn GridSearchCV](https://scikit-learn.org/1.6/modules/generated/sklearn.model_selection.GridSearchCV.html) for hyperparameter tuning and best fit.
- - Decision Tree Classifier ML model (coded from scratch to emulate behavior of Scikit-Learn [DecisionTreeClassifier](https://scikit-learn.org/dev/modules/generated/sklearn.tree.DecisionTreeClassifier.html)
+ - Implementation of my own Decision Tree Classifier ML model (coded from scratch to emulate behavior of Scikit-Learn [DecisionTreeClassifier](https://scikit-learn.org/dev/modules/generated/sklearn.tree.DecisionTreeClassifier.html).
 
 Highly recommended reading [neuraldatascience.io](https://neuraldatascience.io/intro.html) for the project. Dataset obtained from [physionet.org](https://physionet.org/content/eegmmidb/1.0.0/) 1.9gb with 6 experiment runs across 109 participants.
 
@@ -40,12 +41,15 @@ This will run the script to perform frequency filtering (using Fast Fourier Tran
 ![Human brain waves frequency](https://github.com/mseong123/total-perspective-vortex/blob/main/images/human_brain_waves_frequency.png)
 
 
-
 ![EEG data post filtering](https://github.com/mseong123/total-perspective-vortex/blob/main/images/EEG_postfilter.png)
 
 *Illustration of EEG data post - filter. Data looks 'cleaner'*
 
-Brain 
+### To train model
+```
+python bci.py train --experiment <1 - 6> --subject <1 - 109>
+```
+This will run the script to train subject and experiment using Scikit-Learn data Pipeline object (which includes further processing using StandardScaler and my own implementation of dim. Ensure that associated .csv preprocessed file is preprocessed first (above) and stored in `./preprocessed_data` folder. Cross KFold and average accuracy is shown at end of training and Python object is stored in `./model` folder.
 
 
 
