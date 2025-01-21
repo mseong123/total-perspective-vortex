@@ -37,9 +37,9 @@ This will run the script to perform frequency filtering (using Fast Fourier Tran
 
 *Illustration of filtering at 1 hz - 40 hz using frequency domain*
 
-![EEG data post filtering](https://github.com/mseong123/total-perspective-vortex/blob/main/images/EEG_postfilter.png)
+![EEG data post filtering](https://github.com/mseong123/total-perspective-vortex/blob/main/images/Filtering.png)
 
-*Illustration of EEG data post - filter*
+*Illustration of EEG data post - filter. Data looks cleaner*
 
 
 
