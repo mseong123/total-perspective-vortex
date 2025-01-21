@@ -49,9 +49,22 @@ This will run the script to perform frequency filtering (using Fast Fourier Tran
 ```
 python bci.py train --experiment <1 - 6> --subject <1 - 109>
 ```
-This will run the script to train subject and experiment using Scikit-Learn data Pipeline object (which includes further processing using StandardScaler and my own implementation of dim. Ensure that associated .csv preprocessed file is preprocessed first (above) and stored in `./preprocessed_data` folder. Cross KFold and average accuracy is shown at end of training and Python object is stored in `./model` folder.
+This will run the script to train subject and experiment (using 70/30 split between `training` and `test` data) using Scikit-Learn data Pipeline object (which includes further processing using StandardScaler and my own implementation of PCA to reduce number of features while retaining amount of information in dataset). The script will also split data to training and test set. Ensure that associated .csv preprocessed file is preprocessed first (above) and stored in `./preprocessed_data` folder. Cross KFold scores and average accuracy is shown at end of training and Python object is stored in `./model` folder.
 
+### To predict model
+```
+python bci.py train --experiment <1 - 6> --subject <1 - 109>
+```
 
+This will run the script to stream `test` data at 1000 samples per second and outputs are displayed in terminal. Ensure that associated model(.pkl file) is trained first (above) and stored in `./model` folder.
+
+### To train all
+```
+python bci.py
+```
+This will run script to train all 6 experiments for each 109 participants (654 in total) and output the scores on test set. Results are in ./result.txt file above. Average score is 84%.
+
+## BONUS implementation
 
 
 
