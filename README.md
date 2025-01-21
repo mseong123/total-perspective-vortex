@@ -18,7 +18,7 @@ This project builds on machine learning methodologies from previous projects and
 
 Highly recommended reading [neuraldatascience.io](https://neuraldatascience.io/intro.html) for the project. Dataset obtained from [physionet.org](https://physionet.org/content/eegmmidb/1.0.0/) 1.9gb with 6 experiment runs across 109 participants.
 
-Classifier achieved average of 80% accuracy on split test set across 109 participants. Final results **100/100**
+Classifier achieved average of 84% accuracy on split test set across 109 participants. Final results **100/100**
 
 ### Download [raw edf data](https://physionet.org/content/eegmmidb/1.0.0/)
 
