@@ -62,7 +62,7 @@ This will run the script to stream `test` data at 1000 samples per second and ou
 ```
 python bci.py
 ```
-This will run script to train all 6 experiments for each 109 participants (654 in total) and output the scores on test set. Results are in ./result.txt file above. Average score is 84%.
+This will run script to train all 6 experiments for each 109 participants (654 in total) and output the scores on their respective test set. Results are in ./result.txt file above. Average score is 84%.
 
 ## BONUS implementation
 
