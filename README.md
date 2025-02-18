@@ -23,7 +23,7 @@ Classifier achieved average of 84% accuracy on split test set across 109 partici
 ## **TLDR** 
 *Very challenging project due to required domain expertise in parsing signals. Also the methodology of dataset split to train and test set is problematic. Each experiment run has 19500 time series data.
 In theory, model should generalise well and able to predict on a fully independent test set that consist of one full segregated experiment run for each participant). However accuracy of my models are quite low hence i have to sum my datapoints together in all experiment runs and split them. It could be due to inadequate feature engineering on the EEG dataset (not using ICA, CSP or CSSP) to better transform the dataset
-into their independent components so that the model can learn better. *
+into their independent components so that the model can learn better.*
 
 ### Download [raw edf data](https://physionet.org/content/eegmmidb/1.0.0/)
 
